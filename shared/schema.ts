@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -9,6 +9,8 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   phone: text("phone"),
+  referralCode: text("referral_code"),
+  referredBy: varchar("referred_by"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -28,6 +30,7 @@ export const pets = pgTable("pets", {
   age: integer("age"),
   weight: integer("weight"),
   notes: text("notes"),
+  photoUrl: text("photo_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -38,6 +41,26 @@ export const insertPetSchema = createInsertSchema(pets).omit({
 export type InsertPet = z.infer<typeof insertPetSchema>;
 export type Pet = typeof pets.$inferSelect;
 
+// Vaccinations table
+export const vaccinations = pgTable("vaccinations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  petId: varchar("pet_id").notNull().references(() => pets.id),
+  vaccineName: text("vaccine_name").notNull(),
+  dateAdministered: timestamp("date_administered").notNull(),
+  expirationDate: timestamp("expiration_date"),
+  documentUrl: text("document_url"),
+  vetName: text("vet_name"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertVaccinationSchema = createInsertSchema(vaccinations).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertVaccination = z.infer<typeof insertVaccinationSchema>;
+export type Vaccination = typeof vaccinations.$inferSelect;
+
 // Bookings table
 export const bookings = pgTable("bookings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -47,18 +70,41 @@ export const bookings = pgTable("bookings", {
   date: timestamp("date").notNull(),
   timeSlot: text("time_slot").notNull(),
   location: text("location").notNull(),
-  status: text("status").notNull().default("scheduled"), // 'scheduled', 'completed', 'cancelled'
+  status: text("status").notNull().default("scheduled"), // 'scheduled', 'completed', 'cancelled', 'checked_in'
   price: integer("price").notNull(), // in cents
   notes: text("notes"),
+  qrCode: text("qr_code").unique(),
+  checkedInAt: timestamp("checked_in_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
+  qrCode: true,
 });
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type Booking = typeof bookings.$inferSelect;
+
+// Payments table
+export const payments = pgTable("payments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  bookingId: varchar("booking_id").notNull().references(() => bookings.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  amount: integer("amount").notNull(), // in cents
+  currency: text("currency").notNull().default("usd"),
+  stripePaymentIntentId: text("stripe_payment_intent_id"),
+  status: text("status").notNull(), // 'pending', 'succeeded', 'failed', 'refunded'
+  refundedAmount: integer("refunded_amount").default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertPaymentSchema = createInsertSchema(payments).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertPayment = z.infer<typeof insertPaymentSchema>;
+export type Payment = typeof payments.$inferSelect;
 
 // Sessions table - completed workout sessions
 export const sessions = pgTable("sessions", {
@@ -78,6 +124,23 @@ export const insertSessionSchema = createInsertSchema(sessions).omit({
 export type InsertSession = z.infer<typeof insertSessionSchema>;
 export type Session = typeof sessions.$inferSelect;
 
+// Session Media (Photos/Videos)
+export const sessionMedia = pgTable("session_media", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id").notNull().references(() => sessions.id),
+  mediaUrl: text("media_url").notNull(),
+  mediaType: text("media_type").notNull(), // 'photo', 'video'
+  caption: text("caption"),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
+export const insertSessionMediaSchema = createInsertSchema(sessionMedia).omit({
+  id: true,
+  uploadedAt: true,
+});
+export type InsertSessionMedia = z.infer<typeof insertSessionMediaSchema>;
+export type SessionMedia = typeof sessionMedia.$inferSelect;
+
 // Packages table - session packages
 export const packages = pgTable("packages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -95,3 +158,60 @@ export const insertPackageSchema = createInsertSchema(packages).omit({
 });
 export type InsertPackage = z.infer<typeof insertPackageSchema>;
 export type Package = typeof packages.$inferSelect;
+
+// Referrals table
+export const referrals = pgTable("referrals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  referrerId: varchar("referrer_id").notNull().references(() => users.id),
+  referredUserId: varchar("referred_user_id").references(() => users.id),
+  referralCode: text("referral_code").notNull(),
+  status: text("status").notNull().default("pending"), // 'pending', 'completed', 'rewarded'
+  rewardGranted: boolean("reward_granted").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
+export const insertReferralSchema = createInsertSchema(referrals).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertReferral = z.infer<typeof insertReferralSchema>;
+export type Referral = typeof referrals.$inferSelect;
+
+// Notification Logs
+export const notificationLogs = pgTable("notification_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: text("type").notNull(), // 'booking_confirmation', 'reminder', 'session_complete', 'photo_update'
+  channel: text("channel").notNull(), // 'email', 'sms', 'push'
+  recipient: text("recipient").notNull(), // email or phone number
+  subject: text("subject"),
+  message: text("message").notNull(),
+  status: text("status").notNull(), // 'sent', 'failed', 'pending'
+  sentAt: timestamp("sent_at").defaultNow().notNull(),
+});
+
+export const insertNotificationLogSchema = createInsertSchema(notificationLogs).omit({
+  id: true,
+  sentAt: true,
+});
+export type InsertNotificationLog = z.infer<typeof insertNotificationLogSchema>;
+export type NotificationLog = typeof notificationLogs.$inferSelect;
+
+// Feedback/Reviews
+export const feedback = pgTable("feedback", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  bookingId: varchar("booking_id").references(() => bookings.id),
+  rating: integer("rating").notNull(), // 1-5
+  comment: text("comment"),
+  category: text("category"), // 'service', 'app', 'staff', 'overall'
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertFeedbackSchema = createInsertSchema(feedback).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertFeedback = z.infer<typeof insertFeedbackSchema>;
+export type Feedback = typeof feedback.$inferSelect;
