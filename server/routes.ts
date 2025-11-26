@@ -206,49 +206,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Process refund if payment exists
       let refundResult = null;
-      if (booking.paymentId) {
-        const stripe = (await import("./stripeClient")).default;
-        const payment = await storage.getPayment(booking.paymentId);
-        
-        if (payment?.stripePaymentIntentId) {
-          // Check if already refunded (idempotency)
-          if (payment.status === "refunded" && payment.refundId) {
-            refundResult = {
-              refundId: payment.refundId,
-              amount: payment.amount,
-              status: "already_refunded"
-            };
-          } else {
-            try {
-              const refund = await stripe.refunds.create({
-                payment_intent: payment.stripePaymentIntentId,
-                reason: "requested_by_customer"
-              });
-              
-              await storage.updatePayment(payment.id, { 
-                status: "refunded",
-                refundId: refund.id
-              });
-              
-              refundResult = {
-                refundId: refund.id,
-                amount: refund.amount / 100,
-                status: refund.status
-              };
-            } catch (err: any) {
-              console.error("Refund error:", err);
-              // If refund fails, don't cancel the booking
-              return res.status(500).json({ 
-                error: "Failed to process refund. Please contact support.",
-                details: err.message
-              });
-            }
+      const bookingPayments = await storage.getPaymentsByBooking(req.params.id);
+      
+      // Find payment that can be refunded - prioritize succeeded, then check for already refunded
+      const succeededPayment = bookingPayments.find(p => p.status === "succeeded" && p.stripePaymentIntentId);
+      const refundedPayment = bookingPayments.find(p => p.status === "refunded" && p.stripeRefundId);
+      
+      // Idempotency: If already refunded, return cached result
+      if (refundedPayment && booking.status === "cancelled") {
+        return res.json({
+          booking,
+          refund: {
+            refundId: refundedPayment.stripeRefundId,
+            amount: (refundedPayment.refundedAmount || refundedPayment.amount) / 100,
+            status: "already_refunded"
+          },
+          message: "Booking was already cancelled with refund."
+        });
+      }
+      
+      if (succeededPayment) {
+        try {
+          // Create Stripe refund (full refund only for 100% policy)
+          const refund = await stripeService.createRefund(succeededPayment.stripePaymentIntentId);
+          
+          // Validate refund amount matches payment amount (full refund check)
+          if (refund.amount !== succeededPayment.amount) {
+            console.warn(`Refund amount mismatch: expected ${succeededPayment.amount}, got ${refund.amount}`);
           }
+          
+          // Atomically update payment and cancel booking
+          await storage.updatePayment(succeededPayment.id, { 
+            status: "refunded",
+            stripeRefundId: refund.id,
+            refundedAmount: refund.amount
+          });
+          
+          refundResult = {
+            refundId: refund.id,
+            amount: refund.amount / 100,
+            status: refund.status
+          };
+        } catch (err: any) {
+          console.error("Refund error:", err);
+          // If refund fails, don't cancel the booking
+          return res.status(500).json({ 
+            error: "Failed to process refund. Please contact support.",
+            details: err.message
+          });
         }
       }
 
-      // Cancel the booking
+      // Cancel the booking (only if not already cancelled)
       const cancelledBooking = await storage.cancelBooking(req.params.id);
+      if (!cancelledBooking) {
+        return res.status(500).json({ error: "Failed to cancel booking" });
+      }
 
       // Send cancellation confirmation notification
       try {

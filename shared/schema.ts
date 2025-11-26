@@ -122,6 +122,7 @@ export const payments = pgTable("payments", {
   amount: integer("amount").notNull(), // in cents
   currency: text("currency").notNull().default("usd"),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
+  stripeRefundId: text("stripe_refund_id"), // Stripe refund ID for idempotency
   status: text("status").notNull(), // 'pending', 'succeeded', 'failed', 'refunded'
   refundedAmount: integer("refunded_amount").default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
