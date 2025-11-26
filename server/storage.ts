@@ -5,6 +5,8 @@ import {
   type InsertPet,
   type Booking,
   type InsertBooking,
+  type BookingCheckin,
+  type InsertBookingCheckin,
   type Session,
   type InsertSession,
   type Package,
@@ -24,6 +26,7 @@ import {
   users,
   pets,
   bookings,
+  bookingCheckins,
   sessions,
   packages,
   vaccinations,
@@ -70,12 +73,19 @@ export interface IStorage {
   // Bookings
   getBooking(id: string): Promise<Booking | undefined>;
   getBookingByQRCode(qrCode: string): Promise<Booking | undefined>;
+  getBookingByQRTokenHash(tokenHash: string): Promise<Booking | undefined>;
   getBookingsByUser(userId: string): Promise<Booking[]>;
   getUpcomingBookings(userId: string): Promise<Booking[]>;
   createBooking(booking: InsertBooking): Promise<Booking>;
   updateBooking(id: string, booking: Partial<InsertBooking>): Promise<Booking | undefined>;
+  updateBookingQRToken(id: string, tokenHash: string, issuedAt: Date, expiresAt: Date): Promise<Booking | undefined>;
   cancelBooking(id: string): Promise<Booking | undefined>;
   checkInBooking(qrCode: string): Promise<Booking | undefined>;
+  checkInBookingWithToken(id: string, verifiedBy: string): Promise<Booking | undefined>;
+  
+  // Booking Check-ins
+  createBookingCheckin(checkin: InsertBookingCheckin): Promise<BookingCheckin>;
+  getBookingCheckins(bookingId: string): Promise<BookingCheckin[]>;
   
   // Payments
   getPayment(id: string): Promise<Payment | undefined>;

@@ -75,7 +75,11 @@ export const bookings = pgTable("bookings", {
   price: integer("price").notNull(), // in cents
   notes: text("notes"),
   qrCode: text("qr_code").unique(),
+  qrTokenHash: text("qr_token_hash"),
+  qrTokenIssuedAt: timestamp("qr_token_issued_at"),
+  qrTokenExpiresAt: timestamp("qr_token_expires_at"),
   checkedInAt: timestamp("checked_in_at"),
+  checkInVerifiedBy: varchar("check_in_verified_by"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -83,9 +87,32 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   id: true,
   createdAt: true,
   qrCode: true,
+  qrTokenHash: true,
+  qrTokenIssuedAt: true,
+  qrTokenExpiresAt: true,
 });
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type Booking = typeof bookings.$inferSelect;
+
+// Booking Check-ins table - audit log for QR code scans
+export const bookingCheckins = pgTable("booking_checkins", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  bookingId: varchar("booking_id").notNull().references(() => bookings.id),
+  qrTokenHash: text("qr_token_hash").notNull(),
+  status: text("status").notNull(), // 'pending', 'validated', 'expired'
+  scannedAt: timestamp("scanned_at").defaultNow().notNull(),
+  scannerUserId: varchar("scanner_user_id"),
+  scannerLocation: text("scanner_location"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertBookingCheckinSchema = createInsertSchema(bookingCheckins).omit({
+  id: true,
+  createdAt: true,
+  scannedAt: true,
+});
+export type InsertBookingCheckin = z.infer<typeof insertBookingCheckinSchema>;
+export type BookingCheckin = typeof bookingCheckins.$inferSelect;
 
 // Payments table
 export const payments = pgTable("payments", {
