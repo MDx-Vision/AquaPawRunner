@@ -2,7 +2,7 @@ import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import vanImage from "@assets/generated_images/modern_mobile_dog_gym_van_exterior.png";
-import happyDog from "@assets/generated_images/happy_dog_post_workout.png";
+import happyDog from "@assets/generated_images/happy_dog_post-workout.png";
 
 export default function About() {
   return (
