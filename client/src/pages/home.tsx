@@ -1,9 +1,10 @@
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Thermometer, ShieldCheck, Clock, Dog, Trophy, Heart, Phone } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Thermometer, ShieldCheck, Clock, Dog, Trophy, Heart, Phone, Check, Star, MapPin, Camera, Zap, Users } from "lucide-react";
 import heroBg from "@assets/generated_images/3d_paw_print_background.png";
 import dogSilhouette from "@assets/generated_images/dog_running_on_slatmill_silhouette.png";
+import { Link } from "wouter";
 
 export default function Home() {
   return (
@@ -41,10 +42,12 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-white font-bold text-lg h-14 px-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all rounded-full">
-                Book a Run
-              </Button>
-              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5 font-bold text-lg h-14 px-8 rounded-full">
+              <Link href="/portal/book">
+                <Button size="lg" className="bg-secondary hover:bg-secondary/90 text-white font-bold text-lg h-14 px-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all rounded-full" data-testid="button-book-run">
+                  Book a Run
+                </Button>
+              </Link>
+              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/5 font-bold text-lg h-14 px-8 rounded-full" onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })} data-testid="button-learn-more">
                 Learn More
               </Button>
             </div>
@@ -119,6 +122,255 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Services & Pricing Section */}
+      <section id="services" className="py-20 bg-muted/30">
+        <div className="container px-4 md:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <h2 className="font-display text-4xl font-bold text-foreground">Our Services</h2>
+            <p className="text-lg text-muted-foreground">
+              Choose the perfect plan for your pup's fitness journey
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              {
+                name: "Express Run",
+                price: "$25",
+                duration: "15 min",
+                features: [
+                  "Quick energy release",
+                  "Perfect for busy schedules",
+                  "Climate controlled van",
+                  "Same-day booking available"
+                ],
+                popular: false
+              },
+              {
+                name: "Standard Run",
+                price: "$40",
+                duration: "30 min",
+                features: [
+                  "Full workout session",
+                  "Muscle building focus",
+                  "Photo updates included",
+                  "Post-run report",
+                  "Most popular choice"
+                ],
+                popular: true
+              },
+              {
+                name: "Pro Athlete",
+                price: "$60",
+                duration: "45 min",
+                features: [
+                  "Extended endurance training",
+                  "Video session recording",
+                  "Custom training plan",
+                  "Priority scheduling",
+                  "Progress tracking"
+                ],
+                popular: false
+              }
+            ].map((plan, i) => (
+              <Card key={i} className={`relative ${plan.popular ? 'border-primary border-2 shadow-2xl scale-105' : 'border-none shadow-lg'} hover:shadow-xl transition-all`} data-testid={`card-plan-${plan.name.toLowerCase().replace(' ', '-')}`}>
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-secondary text-white px-4 py-1 rounded-full text-sm font-bold">
+                    Most Popular
+                  </div>
+                )}
+                <CardHeader className="text-center pb-8 pt-8">
+                  <CardTitle className="text-2xl font-display">{plan.name}</CardTitle>
+                  <div className="mt-4">
+                    <span className="text-5xl font-black text-foreground">{plan.price}</span>
+                    <span className="text-muted-foreground ml-2">/ session</span>
+                  </div>
+                  <CardDescription className="text-lg mt-2">{plan.duration} session</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, j) => (
+                      <li key={j} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-muted-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link href="/portal/book" className="block">
+                    <Button className={`w-full mt-6 ${plan.popular ? 'bg-secondary hover:bg-secondary/90' : ''}`} size="lg" data-testid={`button-choose-${plan.name.toLowerCase().replace(' ', '-')}`}>
+                      Choose {plan.name}
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="text-center mt-12">
+            <p className="text-muted-foreground mb-4">Package deals available! Save up to 20% with multi-session bundles.</p>
+            <Link href="/portal">
+              <Button variant="outline" size="lg" data-testid="button-view-packages">
+                View Package Deals
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 bg-white">
+        <div className="container px-4 md:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <h2 className="font-display text-4xl font-bold text-foreground">How It Works</h2>
+            <p className="text-lg text-muted-foreground">
+              Getting started is easy! Here's what to expect.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-4 gap-8">
+            {[
+              {
+                step: "1",
+                icon: Phone,
+                title: "Book Online",
+                desc: "Choose your service and preferred time slot through our easy booking system."
+              },
+              {
+                step: "2",
+                icon: MapPin,
+                title: "We Come to You",
+                desc: "Our mobile gym arrives at your location - home, office, or park."
+              },
+              {
+                step: "3",
+                icon: Zap,
+                title: "Let's Run!",
+                desc: "Your pup enjoys a safe, controlled workout on our climate-controlled slatmill."
+              },
+              {
+                step: "4",
+                icon: Camera,
+                title: "Track Progress",
+                desc: "Get photos, videos, and detailed reports of every session in your portal."
+              }
+            ].map((step, i) => (
+              <div key={i} className="relative">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-2">
+                      <step.icon className="w-10 h-10" />
+                    </div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-sm">
+                      {step.step}
+                    </div>
+                  </div>
+                  <h3 className="font-display text-xl font-bold">{step.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {step.desc}
+                  </p>
+                </div>
+                {i < 3 && (
+                  <div className="hidden md:block absolute top-10 left-full w-full h-0.5 bg-gradient-to-r from-primary/50 to-transparent -translate-x-1/2" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container px-4 md:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <h2 className="font-display text-4xl font-bold text-foreground">What Pet Parents Say</h2>
+            <p className="text-lg text-muted-foreground">
+              Don't just take our word for it - hear from our happy customers!
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              {
+                name: "Sarah M.",
+                pet: "Owner of Max (Golden Retriever)",
+                rating: 5,
+                text: "GoPAWZ has been a game-changer! Max used to be so hyper at home, but now after his runs, he's calm and happy. The convenience of them coming to us is unbeatable!"
+              },
+              {
+                name: "David L.",
+                pet: "Owner of Bella (Pitbull Mix)",
+                rating: 5,
+                text: "I love the QR check-in system and getting photo updates during the session. It's so professional and I always know exactly when they arrive. Bella absolutely loves her workout days!"
+              },
+              {
+                name: "Jennifer K.",
+                pet: "Owner of Duke (German Shepherd)",
+                rating: 5,
+                text: "As a working professional, I don't always have time for long walks. GoPAWZ makes it easy to keep Duke fit and healthy. The mobile gym is climate-controlled which is perfect for hot OC summers!"
+              }
+            ].map((testimonial, i) => (
+              <Card key={i} className="border-none shadow-lg" data-testid={`card-testimonial-${i}`}>
+                <CardContent className="p-8 space-y-4">
+                  <div className="flex gap-1">
+                    {[...Array(testimonial.rating)].map((_, j) => (
+                      <Star key={j} className="w-5 h-5 fill-secondary text-secondary" />
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground italic leading-relaxed">
+                    "{testimonial.text}"
+                  </p>
+                  <div className="pt-4 border-t">
+                    <p className="font-bold text-foreground">{testimonial.name}</p>
+                    <p className="text-sm text-muted-foreground">{testimonial.pet}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-white">
+        <div className="container px-4 md:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <h2 className="font-display text-4xl font-bold text-foreground">Frequently Asked Questions</h2>
+          </div>
+
+          <div className="max-w-3xl mx-auto space-y-6">
+            {[
+              {
+                q: "Is the slatmill safe for my dog?",
+                a: "Absolutely! Our non-motorized slatmills allow dogs to run at their own pace, making it much safer than motorized treadmills. We also have trained staff supervising every session."
+              },
+              {
+                q: "What vaccinations does my dog need?",
+                a: "We require current Rabies, DHPP, and Bordetella (kennel cough) vaccinations. You can upload and track vaccination records right in your portal!"
+              },
+              {
+                q: "How far in advance should I book?",
+                a: "We recommend booking 24-48 hours in advance, though same-day Express Run sessions may be available based on our schedule."
+              },
+              {
+                q: "What areas do you serve?",
+                a: "We serve all of Orange County, CA! Our mobile unit makes it easy to reach you wherever you are."
+              },
+              {
+                q: "Can I watch my dog's session?",
+                a: "Of course! You're welcome to observe, and we'll also send you photos and updates during each session through our portal."
+              }
+            ].map((faq, i) => (
+              <Card key={i} className="border-none shadow-md" data-testid={`card-faq-${i}`}>
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-3 text-foreground">{faq.q}</h3>
+                  <p className="text-muted-foreground leading-relaxed">{faq.a}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Strip */}
       <section className="py-20 bg-primary text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 pattern-grid-lg" />
@@ -127,9 +379,11 @@ export default function Home() {
           <p className="text-xl md:text-2xl max-w-2xl mx-auto opacity-90 font-medium">
             Your dog deserves the best run of their life. We come to you!
           </p>
-          <Button size="lg" className="bg-secondary text-white hover:bg-white hover:text-secondary font-black text-lg h-16 px-10 rounded-full shadow-2xl transition-all transform hover:scale-105">
-            Schedule Your First Session
-          </Button>
+          <Link href="/portal/book">
+            <Button size="lg" className="bg-secondary text-white hover:bg-white hover:text-secondary font-black text-lg h-16 px-10 rounded-full shadow-2xl transition-all transform hover:scale-105" data-testid="button-schedule-session">
+              Schedule Your First Session
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -149,10 +403,10 @@ export default function Home() {
             <div className="space-y-4">
               <h4 className="font-bold text-lg">Quick Links</h4>
               <ul className="space-y-2 text-white/60">
-                <li><a href="#" className="hover:text-primary transition-colors">Home</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Services</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Book Now</a></li>
+                <li><Link href="/"><span className="hover:text-primary transition-colors cursor-pointer">Home</span></Link></li>
+                <li><span className="hover:text-primary transition-colors cursor-pointer" onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}>Services</span></li>
+                <li><Link href="/portal"><span className="hover:text-primary transition-colors cursor-pointer">Client Portal</span></Link></li>
+                <li><Link href="/portal/book"><span className="hover:text-primary transition-colors cursor-pointer">Book Now</span></Link></li>
               </ul>
             </div>
 
