@@ -1,4 +1,4 @@
-import type { User, Pet, Booking, Session, Package } from "@shared/schema";
+import type { User, Pet, Booking, Session, Package, Vaccination, InsertVaccination } from "@shared/schema";
 
 const API_BASE = "/api";
 
@@ -75,4 +75,28 @@ export async function getPackagesByUser(userId: string): Promise<Package[]> {
   const res = await fetch(`${API_BASE}/users/${userId}/packages`);
   if (!res.ok) throw new Error("Failed to fetch packages");
   return res.json();
+}
+
+// Vaccinations
+export async function getVaccinationsByPet(petId: string): Promise<Vaccination[]> {
+  const res = await fetch(`${API_BASE}/pets/${petId}/vaccinations`);
+  if (!res.ok) throw new Error("Failed to fetch vaccinations");
+  return res.json();
+}
+
+export async function createVaccination(vaccination: InsertVaccination): Promise<Vaccination> {
+  const res = await fetch(`${API_BASE}/vaccinations`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(vaccination),
+  });
+  if (!res.ok) throw new Error("Failed to create vaccination");
+  return res.json();
+}
+
+export async function deleteVaccination(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/vaccinations/${id}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to delete vaccination");
 }

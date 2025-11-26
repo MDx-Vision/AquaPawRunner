@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { PortalLayout } from "./layout";
 import { Button } from "@/components/ui/button";
@@ -17,68 +17,63 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, FileText, AlertCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { getUserByEmail, getPetsByUser, getVaccinationsByPet, createVaccination, deleteVaccination } from "@/lib/api";
+import type { Pet, Vaccination } from "@shared/schema";
 
-const MOCK_USER_ID = "user-1";
-
-interface Pet {
-  id: string;
-  name: string;
-  breed: string;
-}
-
-interface Vaccination {
-  id: string;
-  petId: string;
-  vaccineName: string;
-  dateAdministered: string;
-  expirationDate: string | null;
-  documentUrl: string | null;
-  vetName: string | null;
-  notes: string | null;
-}
+// For demo purposes - in production this would come from auth
+const DEMO_USER_EMAIL = "sarah@example.com";
 
 export default function Vaccinations() {
   const [selectedPetId, setSelectedPetId] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: pets = [] } = useQuery<Pet[]>({
-    queryKey: [`/api/users/${MOCK_USER_ID}/pets`],
+  const { data: user } = useQuery({
+    queryKey: ["user", DEMO_USER_EMAIL],
+    queryFn: () => getUserByEmail(DEMO_USER_EMAIL),
   });
 
-  const { data: vaccinations = [] } = useQuery<Vaccination[]>({
-    queryKey: [`/api/pets/${selectedPetId}/vaccinations`],
+  const petsQuery = useQuery({
+    queryKey: ["pets", user?.id],
+    queryFn: () => getPetsByUser(user!.id),
+    enabled: !!user,
+  });
+
+  const pets = petsQuery.data || [];
+
+  // Auto-select first pet when pets are successfully loaded
+  useEffect(() => {
+    if (petsQuery.status === "success" && pets.length > 0 && !selectedPetId) {
+      setSelectedPetId(pets[0].id);
+    }
+  }, [petsQuery.status, pets, selectedPetId]);
+
+  const { data: vaccinations = [] } = useQuery({
+    queryKey: ["vaccinations", selectedPetId],
+    queryFn: () => getVaccinationsByPet(selectedPetId),
     enabled: !!selectedPetId,
   });
 
   const addVaccinationMutation = useMutation({
-    mutationFn: async (data: any) => {
-      const response = await fetch("/api/vaccinations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to add vaccination");
-      return response.json();
-    },
+    mutationFn: createVaccination,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/pets/${selectedPetId}/vaccinations`] });
+      queryClient.invalidateQueries({ queryKey: ["vaccinations", selectedPetId] });
       toast.success("Vaccination record added");
       setIsAddDialogOpen(false);
+    },
+    onError: (error) => {
+      toast.error(`Failed to add vaccination: ${error.message}`);
     },
   });
 
   const deleteVaccinationMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await fetch(`/api/vaccinations/${id}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to delete vaccination");
-      return response.json();
-    },
+    mutationFn: deleteVaccination,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [`/api/pets/${selectedPetId}/vaccinations`] });
+      queryClient.invalidateQueries({ queryKey: ["vaccinations", selectedPetId] });
       toast.success("Vaccination record deleted");
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete vaccination: ${error.message}`);
     },
   });
 
@@ -86,16 +81,57 @@ export default function Vaccinations() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    // Extract and validate form data
+    const vaccineName = formData.get("vaccineName")?.toString().trim();
+    const dateAdministered = formData.get("dateAdministered")?.toString();
+    const expirationDate = formData.get("expirationDate")?.toString();
+    const vetName = formData.get("vetName")?.toString().trim();
+    const notes = formData.get("notes")?.toString().trim();
+    const documentUrl = formData.get("documentUrl")?.toString().trim();
+
+    // Validate required fields
+    if (!vaccineName) {
+      toast.error("Vaccination name is required");
+      return;
+    }
+    if (!dateAdministered) {
+      toast.error("Date administered is required");
+      return;
+    }
+    if (!selectedPetId) {
+      toast.error("Please select a pet first");
+      return;
+    }
+
+    // Convert dates to ISO strings
+    let dateAdministeredISO: string;
+    let expirationDateISO: string | null = null;
+
+    try {
+      dateAdministeredISO = new Date(dateAdministered).toISOString();
+    } catch (error) {
+      toast.error("Invalid date administered");
+      return;
+    }
+
+    if (expirationDate) {
+      try {
+        expirationDateISO = new Date(expirationDate).toISOString();
+      } catch (error) {
+        toast.error("Invalid expiration date");
+        return;
+      }
+    }
+
+    // Submit with proper types
     addVaccinationMutation.mutate({
       petId: selectedPetId,
-      vaccineName: formData.get("vaccineName"),
-      dateAdministered: new Date(formData.get("dateAdministered") as string).toISOString(),
-      expirationDate: formData.get("expirationDate") 
-        ? new Date(formData.get("expirationDate") as string).toISOString() 
-        : null,
-      vetName: formData.get("vetName") || null,
-      notes: formData.get("notes") || null,
-      documentUrl: formData.get("documentUrl") || null,
+      vaccineName,
+      dateAdministered: dateAdministeredISO,
+      expirationDate: expirationDateISO,
+      vetName: vetName || null,
+      notes: notes || null,
+      documentUrl: documentUrl || null,
     });
   };
 
@@ -112,6 +148,20 @@ export default function Vaccinations() {
     return new Date(expirationDate) < new Date();
   };
 
+  // Loading state
+  if (!user || petsQuery.isLoading) {
+    return (
+      <PortalLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading vaccination records...</p>
+          </div>
+        </div>
+      </PortalLayout>
+    );
+  }
+
   return (
     <PortalLayout>
       <div className="max-w-6xl mx-auto space-y-8" data-testid="vaccinations-page">
@@ -126,31 +176,41 @@ export default function Vaccinations() {
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Select a Pet</CardTitle>
-            <CardDescription>Choose which pet's vaccination records to view</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {pets.map((pet) => (
-                <button
-                  key={pet.id}
-                  onClick={() => setSelectedPetId(pet.id)}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    selectedPetId === pet.id
-                      ? "border-[#00CED1] bg-cyan-50"
-                      : "border-gray-200 hover:border-[#00CED1]/50"
-                  }`}
-                  data-testid={`pet-card-${pet.id}`}
-                >
-                  <h3 className="font-semibold text-lg">{pet.name}</h3>
-                  <p className="text-sm text-gray-600">{pet.breed}</p>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {pets.length === 0 ? (
+          <Card>
+            <CardContent className="flex items-center justify-center py-12">
+              <p className="text-muted-foreground">No pets found. Please add a pet first.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Select a Pet</CardTitle>
+                <CardDescription>Choose which pet's vaccination records to view</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {pets.map((pet) => (
+                    <button
+                      key={pet.id}
+                      onClick={() => setSelectedPetId(pet.id)}
+                      className={`p-4 rounded-lg border-2 transition-all text-left ${
+                        selectedPetId === pet.id
+                          ? "border-[#00CED1] bg-cyan-50"
+                          : "border-gray-200 hover:border-[#00CED1]/50"
+                      }`}
+                      data-testid={`pet-card-${pet.id}`}
+                    >
+                      <h3 className="font-semibold text-lg">{pet.name}</h3>
+                      <p className="text-sm text-gray-600">{pet.breed}</p>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
 
         {selectedPetId && (
           <div className="space-y-4">
