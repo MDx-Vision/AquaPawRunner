@@ -9,6 +9,7 @@ import About from "@/pages/about";
 import Services from "@/pages/services";
 import PortalDashboard from "@/pages/portal/dashboard";
 import BookingPage from "@/pages/portal/booking";
+import Vaccinations from "@/pages/portal/vaccinations";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/services" component={Services} />
       <Route path="/portal" component={PortalDashboard} />
       <Route path="/portal/book" component={BookingPage} />
+      <Route path="/portal/vaccinations" component={Vaccinations} />
       <Route path="/portal/:any*" component={PortalDashboard} />
       <Route component={NotFound} />
     </Switch>

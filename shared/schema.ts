@@ -11,6 +11,7 @@ export const users = pgTable("users", {
   phone: text("phone"),
   referralCode: text("referral_code"),
   referredBy: varchar("referred_by"),
+  stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

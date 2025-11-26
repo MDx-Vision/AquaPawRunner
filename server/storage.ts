@@ -79,10 +79,12 @@ export interface IStorage {
   
   // Payments
   getPayment(id: string): Promise<Payment | undefined>;
+  getPaymentByStripeIntent(stripePaymentIntentId: string): Promise<Payment | undefined>;
   getPaymentsByBooking(bookingId: string): Promise<Payment[]>;
   getPaymentsByUser(userId: string): Promise<Payment[]>;
   createPayment(payment: InsertPayment): Promise<Payment>;
   updatePayment(id: string, payment: Partial<InsertPayment>): Promise<Payment | undefined>;
+  updatePaymentByStripeIntent(stripePaymentIntentId: string, payment: Partial<InsertPayment>): Promise<Payment | undefined>;
   
   // Sessions
   getSession(id: string): Promise<Session | undefined>;
@@ -253,6 +255,11 @@ export class DatabaseStorage implements IStorage {
     return payment || undefined;
   }
 
+  async getPaymentByStripeIntent(stripePaymentIntentId: string): Promise<Payment | undefined> {
+    const [payment] = await db.select().from(payments).where(eq(payments.stripePaymentIntentId, stripePaymentIntentId));
+    return payment || undefined;
+  }
+
   async getPaymentsByBooking(bookingId: string): Promise<Payment[]> {
     return db.select().from(payments).where(eq(payments.bookingId, bookingId));
   }
@@ -268,6 +275,11 @@ export class DatabaseStorage implements IStorage {
 
   async updatePayment(id: string, payment: Partial<InsertPayment>): Promise<Payment | undefined> {
     const [updated] = await db.update(payments).set(payment).where(eq(payments.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async updatePaymentByStripeIntent(stripePaymentIntentId: string, payment: Partial<InsertPayment>): Promise<Payment | undefined> {
+    const [updated] = await db.update(payments).set(payment).where(eq(payments.stripePaymentIntentId, stripePaymentIntentId)).returning();
     return updated || undefined;
   }
 

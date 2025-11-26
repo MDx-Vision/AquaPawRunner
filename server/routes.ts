@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { stripeService } from "./stripeService";
+import { getStripePublishableKey } from "./stripeClient";
 import {
   insertUserSchema,
   insertPetSchema,
@@ -365,6 +367,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/feedback/all", async (req, res) => {
     const feedbacks = await storage.getAllFeedback();
     res.json(feedbacks);
+  });
+
+  // Stripe Payment Integration
+  app.get("/api/stripe/config", async (req, res) => {
+    const publishableKey = await getStripePublishableKey();
+    res.json({ publishableKey });
+  });
+
+  app.post("/api/stripe/create-payment-intent", async (req, res) => {
+    try {
+      // TODO: In production, get userId from authenticated session (req.user.id)
+      // For prototype: accepting userId from request body
+      const { bookingId, userId } = req.body;
+      
+      if (!bookingId || !userId) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+
+      if (booking.userId !== userId) {
+        return res.status(403).json({ error: "Unauthorized - booking does not belong to user" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripeService.createCustomer(user.email, user.id, user.name);
+        await storage.updateUser(user.id, { stripeCustomerId: customer.id });
+        customerId = customer.id;
+      }
+
+      const paymentIntent = await stripeService.createPaymentIntent(
+        booking.price,
+        customerId,
+        bookingId
+      );
+
+      await storage.createPayment({
+        bookingId,
+        userId,
+        amount: booking.price,
+        currency: 'usd',
+        stripePaymentIntentId: paymentIntent.id,
+        status: 'pending',
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/payments/by-intent/:paymentIntentId", async (req, res) => {
+    try {
+      const payment = await storage.getPaymentByStripeIntent(req.params.paymentIntentId);
+      if (!payment) {
+        return res.status(404).json({ error: "Payment not found" });
+      }
+      res.json(payment);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/stripe/refund", async (req, res) => {
+    try {
+      // TODO: In production, get userId from authenticated session (req.user.id)
+      // For prototype: accepting userId from request body
+      const { bookingId, userId } = req.body;
+      
+      if (!bookingId || !userId) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const booking = await storage.getBooking(bookingId);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+
+      if (booking.userId !== userId) {
+        return res.status(403).json({ error: "Unauthorized" });
+      }
+
+      const payments = await storage.getPaymentsByBooking(bookingId);
+      const successfulPayment = payments.find(p => p.status === 'succeeded');
+      
+      if (!successfulPayment || !successfulPayment.stripePaymentIntentId) {
+        return res.status(404).json({ error: "No successful payment found for this booking" });
+      }
+
+      const refund = await stripeService.createRefund(successfulPayment.stripePaymentIntentId);
+      
+      await storage.updatePayment(successfulPayment.id, {
+        status: 'refunded',
+        refundedAmount: refund.amount,
+      });
+
+      res.json(refund);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   });
 
   const httpServer = createServer(app);
