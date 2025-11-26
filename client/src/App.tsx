@@ -10,7 +10,9 @@ import Services from "@/pages/services";
 import PortalDashboard from "@/pages/portal/dashboard";
 import BookingPage from "@/pages/portal/booking";
 import Vaccinations from "@/pages/portal/vaccinations";
+import SessionDetails from "@/pages/portal/session-details";
 import StaffScanner from "@/pages/staff/scanner";
+import UploadMedia from "@/pages/staff/upload-media";
 
 function Router() {
   return (
@@ -21,7 +23,9 @@ function Router() {
       <Route path="/portal" component={PortalDashboard} />
       <Route path="/portal/book" component={BookingPage} />
       <Route path="/portal/vaccinations" component={Vaccinations} />
+      <Route path="/portal/sessions/:sessionId" component={SessionDetails} />
       <Route path="/staff/scanner" component={StaffScanner} />
+      <Route path="/staff/sessions/:sessionId/upload" component={UploadMedia} />
       <Route path="/portal/:any*" component={PortalDashboard} />
       <Route component={NotFound} />
     </Switch>

@@ -1,9 +1,12 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { stripeService } from "./stripeService";
 import { getStripePublishableKey } from "./stripeClient";
 import { notificationManager } from "./notifications";
+import { upload } from "./uploadMiddleware";
+import path from "path";
 import {
   insertUserSchema,
   insertPetSchema,
@@ -20,6 +23,12 @@ import {
 import { fromError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve uploaded files
+  app.use("/uploads", (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    next();
+  }, express.static(path.join(process.cwd(), "uploads")));
+
   // Users
   app.post("/api/users", async (req, res) => {
     try {
@@ -660,6 +669,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/sessions/:id", async (req, res) => {
+    const session = await storage.getSession(req.params.id);
+    if (!session) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+    res.json(session);
+  });
+
   app.get("/api/pets/:petId/sessions", async (req, res) => {
     const sessions = await storage.getSessionsByPet(req.params.petId);
     res.json(sessions);
@@ -671,6 +688,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Session Media (Photos/Videos)
+  app.post("/api/sessions/:sessionId/upload-media", upload.array("files", 10), async (req, res) => {
+    try {
+      const files = req.files as Express.Multer.File[];
+      if (!files || files.length === 0) {
+        return res.status(400).json({ error: "No files uploaded" });
+      }
+
+      const session = await storage.getSession(req.params.sessionId);
+      if (!session) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+
+      const caption = req.body.caption || "";
+      const uploadedMedia = [];
+
+      for (const file of files) {
+        const mediaType = file.mimetype.startsWith("video/") ? "video" : "photo";
+        const mediaUrl = `/uploads/${file.filename}`;
+
+        const media = await storage.createSessionMedia({
+          sessionId: req.params.sessionId,
+          mediaUrl,
+          mediaType,
+          caption
+        });
+
+        uploadedMedia.push(media);
+      }
+
+      // Send notification to customer that media is available
+      try {
+        const booking = await storage.getBooking(session.bookingId);
+        const pet = await storage.getPet(session.petId);
+        const user = booking ? await storage.getUser(booking.userId) : null;
+        
+        if (user && pet && booking) {
+          await notificationManager.sendMediaSharedNotification(
+            booking, 
+            session, 
+            pet, 
+            user, 
+            uploadedMedia.length
+          );
+        }
+      } catch (err: any) {
+        console.error('[Upload Media] Failed to send notification:', err.message);
+      }
+
+      res.json({ 
+        success: true,
+        media: uploadedMedia,
+        message: `${uploadedMedia.length} file(s) uploaded successfully`
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to upload media" });
+    }
+  });
+
   app.post("/api/session-media", async (req, res) => {
     try {
       const validatedData = insertSessionMediaSchema.parse(req.body);

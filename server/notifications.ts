@@ -1,4 +1,4 @@
-import type { Booking, Pet, User } from "@shared/schema";
+import type { Booking, Pet, User, Session } from "@shared/schema";
 import { formatDate } from "date-fns";
 
 export interface NotificationService {
@@ -7,6 +7,7 @@ export interface NotificationService {
   sendSessionComplete(booking: Booking, pet: Pet, user: User, mediaUrl?: string): Promise<void>;
   sendCancellationConfirmation(booking: Booking, pet: Pet, user: User, refundAmount?: number): Promise<void>;
   sendRescheduleConfirmation(booking: Booking, pet: Pet, user: User, oldDate: Date): Promise<void>;
+  sendMediaSharedNotification(booking: Booking, session: Session, pet: Pet, user: User, mediaCount: number): Promise<void>;
 }
 
 interface EmailPayload {
@@ -112,6 +113,24 @@ export class NotificationManager implements NotificationService {
     const smsPayload: SMSPayload = {
       to: user.phone || "",
       body: `GoPAWZ: ${pet.name}'s session rescheduled to ${newFormattedDate}. Reply STOP to opt out.`
+    };
+
+    await this.send(emailPayload, smsPayload, user.phone);
+  }
+
+  async sendMediaSharedNotification(booking: Booking, session: Session, pet: Pet, user: User, mediaCount: number): Promise<void> {
+    const formattedDate = formatDate(new Date(booking.date), "MMMM d, yyyy");
+    
+    const emailPayload: EmailPayload = {
+      to: user.email,
+      subject: `📸 New Photos & Videos from ${pet.name}'s Session!`,
+      html: this.getMediaSharedHTML(booking, session, pet, user, formattedDate, mediaCount),
+      text: this.getMediaSharedText(booking, session, pet, user, formattedDate, mediaCount)
+    };
+
+    const smsPayload: SMSPayload = {
+      to: user.phone || "",
+      body: `GoPAWZ: ${mediaCount} new ${mediaCount === 1 ? 'photo/video' : 'photos/videos'} from ${pet.name}'s session! View them at gopawz.com/portal. Reply STOP to opt out.`
     };
 
     await this.send(emailPayload, smsPayload, user.phone);
@@ -592,6 +611,73 @@ WHAT'S NEXT:
 View in Portal: ${process.env.VITE_APP_URL || 'http://localhost:5000'}/portal
 
 Looking forward to seeing ${pet.name}!
+— The GoPAWZ Team
+    `.trim();
+  }
+
+  private getMediaSharedHTML(booking: Booking, session: Session, pet: Pet, user: User, date: string, mediaCount: number): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Open Sans', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; }
+          .header { background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%); color: white; padding: 30px; text-align: center; }
+          .header h1 { margin: 0; font-size: 28px; }
+          .content { padding: 30px; }
+          .media-box { background: #f0fdff; border-left: 4px solid #06B6D4; padding: 20px; margin: 20px 0; border-radius: 4px; }
+          .btn { display: inline-block; background: #06B6D4; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+          .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>📸 New Photos & Videos!</h1>
+        </div>
+        <div class="content">
+          <p>Hi ${user.name},</p>
+          
+          <div class="media-box">
+            <h2 style="margin-top: 0; color: #06B6D4;">${mediaCount} New ${mediaCount === 1 ? 'Photo/Video' : 'Photos/Videos'} Available!</h2>
+            <p>We've just uploaded ${mediaCount} ${mediaCount === 1 ? 'photo/video' : 'photos/videos'} from ${pet.name}'s session on ${date}.</p>
+          </div>
+
+          <p><strong>View your session media:</strong></p>
+          <ul>
+            <li>See all photos and videos from the session</li>
+            <li>Download your favorites to keep forever</li>
+            <li>Share with friends and family</li>
+          </ul>
+
+          <a href="${process.env.VITE_APP_URL || 'http://localhost:5000'}/portal" class="btn">View Media</a>
+
+          <p>${pet.name} had an amazing session!</p>
+          <p>— The GoPAWZ Team</p>
+        </div>
+        <div class="footer">
+          <p>GoPAWZ Mobile Dog Gym | Questions? Reply to this email</p>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
+  private getMediaSharedText(booking: Booking, session: Session, pet: Pet, user: User, date: string, mediaCount: number): string {
+    return `
+📸 New Photos & Videos!
+
+Hi ${user.name},
+
+We've just uploaded ${mediaCount} ${mediaCount === 1 ? 'photo/video' : 'photos/videos'} from ${pet.name}'s session on ${date}.
+
+VIEW YOUR SESSION MEDIA:
+- See all photos and videos from the session
+- Download your favorites to keep forever
+- Share with friends and family
+
+View Media: ${process.env.VITE_APP_URL || 'http://localhost:5000'}/portal
+
+${pet.name} had an amazing session!
 — The GoPAWZ Team
     `.trim();
   }
