@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Menu, Phone, Calendar, Thermometer, ShieldCheck, Clock } from "lucide-react";
+import { Menu, Phone } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function Navbar() {
@@ -17,9 +17,9 @@ export function Navbar() {
         
         <div className="hidden md:flex items-center gap-6 font-medium text-sm">
           <Link href="/"><a className="text-foreground/80 hover:text-primary transition-colors">Home</a></Link>
-          <Link href="#"><a className="text-foreground/80 hover:text-primary transition-colors">About Us</a></Link>
-          <Link href="#"><a className="text-foreground/80 hover:text-primary transition-colors">Services</a></Link>
-          <Link href="#"><a className="text-foreground/80 hover:text-primary transition-colors">Contact</a></Link>
+          <Link href="/about"><a className="text-foreground/80 hover:text-primary transition-colors">About Us</a></Link>
+          <Link href="/services"><a className="text-foreground/80 hover:text-primary transition-colors">Services</a></Link>
+          <Link href="/portal"><a className="text-foreground/80 hover:text-primary transition-colors">Client Portal</a></Link>
         </div>
 
         <div className="hidden md:flex items-center gap-4">
@@ -43,9 +43,9 @@ export function Navbar() {
           <SheetContent side="right">
             <div className="flex flex-col gap-6 pt-10">
               <Link href="/"><a className="text-lg font-bold">Home</a></Link>
-              <Link href="#"><a className="text-lg font-medium">About Us</a></Link>
-              <Link href="#"><a className="text-lg font-medium">Services</a></Link>
-              <Link href="#"><a className="text-lg font-medium">Contact</a></Link>
+              <Link href="/about"><a className="text-lg font-medium">About Us</a></Link>
+              <Link href="/services"><a className="text-lg font-medium">Services</a></Link>
+              <Link href="/portal"><a className="text-lg font-medium">Client Portal</a></Link>
               <Link href="/portal">
                 <Button className="w-full bg-secondary text-white">Book Now</Button>
               </Link>
