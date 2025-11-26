@@ -59,6 +59,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getUserByReferralCode(code: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
   generateReferralCodeForUser(userId: string): Promise<User | undefined>;
@@ -151,6 +152,10 @@ export class DatabaseStorage implements IStorage {
   async getUserByReferralCode(code: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.referralCode, code));
     return user || undefined;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return db.select().from(users);
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {

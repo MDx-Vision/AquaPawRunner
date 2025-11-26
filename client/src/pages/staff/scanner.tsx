@@ -1,17 +1,24 @@
 import { QRScanner } from "@/components/qr-scanner";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload } from "lucide-react";
 
 export default function StaffScanner() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <Link href="/">
             <Button variant="ghost" size="sm" data-testid="button-back-home">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Home
+            </Button>
+          </Link>
+          
+          <Link href="/staff/sessions">
+            <Button variant="default" data-testid="button-upload-media">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Session Media
             </Button>
           </Link>
         </div>

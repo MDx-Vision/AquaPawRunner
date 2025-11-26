@@ -13,6 +13,7 @@ import Vaccinations from "@/pages/portal/vaccinations";
 import ReferralsPage from "@/pages/portal/referrals";
 import SessionDetails from "@/pages/portal/session-details";
 import StaffScanner from "@/pages/staff/scanner";
+import StaffSessions from "@/pages/staff/sessions";
 import UploadMedia from "@/pages/staff/upload-media";
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/portal/referrals" component={ReferralsPage} />
       <Route path="/portal/sessions/:sessionId" component={SessionDetails} />
       <Route path="/staff/scanner" component={StaffScanner} />
+      <Route path="/staff/sessions" component={StaffSessions} />
       <Route path="/staff/sessions/:sessionId/upload" component={UploadMedia} />
       <Route path="/portal/:any*" component={PortalDashboard} />
       <Route component={NotFound} />

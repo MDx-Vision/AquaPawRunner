@@ -65,6 +65,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Pets
+  app.get("/api/pets", async (req, res) => {
+    try {
+      // Get all pets (for staff view) - fetch from all users
+      const allUsers = await storage.getAllUsers();
+      const petPromises = allUsers.map(user => storage.getPetsByUser(user.id));
+      const petArrays = await Promise.all(petPromises);
+      const allPets = petArrays.flat();
+      res.json(allPets);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post("/api/pets", async (req, res) => {
     try {
       const validatedData = insertPetSchema.parse(req.body);
