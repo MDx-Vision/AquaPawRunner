@@ -41,7 +41,13 @@ import { eq, and, desc, lt } from "drizzle-orm";
 import { randomBytes } from "crypto";
 
 function generateReferralCode(): string {
-  return randomBytes(4).toString('hex').toUpperCase();
+  // Generate 8-character uppercase alphanumeric code (no ambiguous chars)
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
 }
 
 function generateQRCode(): string {
@@ -52,6 +58,7 @@ export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByReferralCode(code: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
   generateReferralCodeForUser(userId: string): Promise<User | undefined>;
@@ -141,9 +148,14 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserByReferralCode(code: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.referralCode, code));
+    return user || undefined;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
-    const referralCode = generateReferralCode();
-    const [user] = await db.insert(users).values({ ...insertUser, referralCode }).returning();
+    // Don't auto-generate referral code - let users request it via the referral page
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 

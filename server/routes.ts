@@ -825,6 +825,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate unique referral code for user
+  app.post("/api/users/:userId/generate-referral-code", async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      let referralCode = user.referralCode;
+
+      // If user doesn't have a code, generate one
+      if (!referralCode) {
+        const updatedUser = await storage.generateReferralCodeForUser(userId);
+        if (!updatedUser) {
+          return res.status(500).json({ error: "Failed to generate code" });
+        }
+        referralCode = updatedUser.referralCode!;
+      }
+
+      // Ensure a referral record exists for this code
+      const existingReferral = await storage.getReferralByCode(referralCode);
+      if (!existingReferral) {
+        await storage.createReferral({
+          referrerId: userId,
+          referralCode,
+          status: "pending",
+          rewardGranted: false,
+        });
+      }
+
+      res.json({ referralCode, message: existingReferral ? "Code already exists" : "Code generated" });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to generate referral code" });
+    }
+  });
+
   // Notifications
   app.post("/api/notifications", async (req, res) => {
     try {

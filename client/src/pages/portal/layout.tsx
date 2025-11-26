@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Calendar, Dog, Settings, LogOut, Menu, X, Syringe } from "lucide-react";
+import { LayoutDashboard, Calendar, Dog, Settings, LogOut, Menu, X, Syringe, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
@@ -12,6 +12,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
     { name: "Dashboard", href: "/portal", icon: LayoutDashboard },
     { name: "Book Session", href: "/portal/book", icon: Calendar },
     { name: "Vaccinations", href: "/portal/vaccinations", icon: Syringe },
+    { name: "Referrals", href: "/portal/referrals", icon: Gift },
     { name: "My Pets", href: "/portal/pets", icon: Dog },
     { name: "Settings", href: "/portal/settings", icon: Settings },
   ];
