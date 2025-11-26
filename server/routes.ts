@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { stripeService } from "./stripeService";
 import { getStripePublishableKey } from "./stripeClient";
+import { notificationManager } from "./notifications";
 import {
   insertUserSchema,
   insertPetSchema,
