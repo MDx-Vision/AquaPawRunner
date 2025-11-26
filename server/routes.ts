@@ -174,20 +174,314 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/bookings/:id/cancel", async (req, res) => {
-    const booking = await storage.cancelBooking(req.params.id);
-    if (!booking) {
-      return res.status(404).json({ error: "Booking not found" });
+    try {
+      const booking = await storage.getBooking(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+
+      // Block cancellation for terminal states
+      if (booking.status === "cancelled") {
+        return res.status(400).json({ error: "Booking is already cancelled" });
+      }
+      if (booking.status === "completed") {
+        return res.status(400).json({ error: "Cannot cancel a completed booking" });
+      }
+      if (booking.status === "checked_in") {
+        return res.status(400).json({ error: "Cannot cancel a booking that's checked in" });
+      }
+
+      // Check cancellation policy (24 hours before booking)
+      const bookingDate = new Date(booking.date);
+      const now = new Date();
+      const hoursUntilBooking = (bookingDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+      if (hoursUntilBooking < 24) {
+        return res.status(400).json({ 
+          error: "Cancellations must be made at least 24 hours in advance",
+          hoursRemaining: Math.round(hoursUntilBooking * 10) / 10
+        });
+      }
+
+      // Process refund if payment exists
+      let refundResult = null;
+      if (booking.paymentId) {
+        const stripe = (await import("./stripeClient")).default;
+        const payment = await storage.getPayment(booking.paymentId);
+        
+        if (payment?.stripePaymentIntentId) {
+          // Check if already refunded (idempotency)
+          if (payment.status === "refunded" && payment.refundId) {
+            refundResult = {
+              refundId: payment.refundId,
+              amount: payment.amount,
+              status: "already_refunded"
+            };
+          } else {
+            try {
+              const refund = await stripe.refunds.create({
+                payment_intent: payment.stripePaymentIntentId,
+                reason: "requested_by_customer"
+              });
+              
+              await storage.updatePayment(payment.id, { 
+                status: "refunded",
+                refundId: refund.id
+              });
+              
+              refundResult = {
+                refundId: refund.id,
+                amount: refund.amount / 100,
+                status: refund.status
+              };
+            } catch (err: any) {
+              console.error("Refund error:", err);
+              // If refund fails, don't cancel the booking
+              return res.status(500).json({ 
+                error: "Failed to process refund. Please contact support.",
+                details: err.message
+              });
+            }
+          }
+        }
+      }
+
+      // Cancel the booking
+      const cancelledBooking = await storage.cancelBooking(req.params.id);
+
+      res.json({
+        booking: cancelledBooking,
+        refund: refundResult,
+        message: refundResult 
+          ? `Booking cancelled. Refund of $${refundResult.amount} will be processed within 5-10 business days.`
+          : "Booking cancelled successfully."
+      });
+    } catch (error: any) {
+      console.error("Cancel booking error:", error);
+      res.status(500).json({ error: error.message || "Failed to cancel booking" });
     }
-    res.json(booking);
   });
 
-  // QR Code Check-in
+  app.post("/api/bookings/:id/reschedule", async (req, res) => {
+    try {
+      const { newDate, newTimeSlot } = req.body;
+      
+      if (!newDate || !newTimeSlot) {
+        return res.status(400).json({ error: "New date and time slot are required" });
+      }
+
+      const booking = await storage.getBooking(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+
+      // Block rescheduling for terminal states
+      if (booking.status === "cancelled") {
+        return res.status(400).json({ error: "Cannot reschedule a cancelled booking" });
+      }
+      if (booking.status === "completed") {
+        return res.status(400).json({ error: "Cannot reschedule a completed booking" });
+      }
+      if (booking.status === "checked_in") {
+        return res.status(400).json({ error: "Cannot reschedule a booking that's already checked in" });
+      }
+
+      // Check rescheduling policy (at least 12 hours before original booking)
+      const originalDate = new Date(booking.date);
+      const now = new Date();
+      const hoursUntilBooking = (originalDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+      if (hoursUntilBooking < 12) {
+        return res.status(400).json({ 
+          error: "Rescheduling must be done at least 12 hours in advance",
+          hoursRemaining: Math.round(hoursUntilBooking * 10) / 10
+        });
+      }
+
+      // Update the booking with new date/time
+      const updatedBooking = await storage.updateBooking(req.params.id, {
+        date: new Date(newDate),
+        timeSlot: newTimeSlot,
+        status: "scheduled"
+      });
+
+      res.json({
+        booking: updatedBooking,
+        message: "Booking rescheduled successfully"
+      });
+    } catch (error: any) {
+      console.error("Reschedule booking error:", error);
+      res.status(500).json({ error: error.message || "Failed to reschedule booking" });
+    }
+  });
+
+  // QR Code Check-in (Legacy)
   app.post("/api/check-in/:qrCode", async (req, res) => {
     const booking = await storage.checkInBooking(req.params.qrCode);
     if (!booking) {
       return res.status(404).json({ error: "Booking not found or invalid QR code" });
     }
     res.json(booking);
+  });
+
+  // QR Token System - Generate/Refresh QR token for a booking
+  app.post("/api/bookings/:id/qr-token", async (req, res) => {
+    const { generateQRToken, canIssueToken, generateQRCodeImage, isTokenExpired } = await import("./qr-utils");
+    const { forceRegenerate } = req.body;
+    
+    const booking = await storage.getBooking(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    // Block token generation for terminal states
+    if (booking.status === "checked_in") {
+      return res.status(400).json({ error: "Booking is already checked in" });
+    }
+    if (booking.status === "cancelled") {
+      return res.status(400).json({ error: "Booking is cancelled" });
+    }
+    if (booking.status === "completed") {
+      return res.status(400).json({ error: "Booking is already completed" });
+    }
+
+    // Check if token can be issued (within 24 hours of booking)
+    if (!canIssueToken(new Date(booking.date))) {
+      return res.status(400).json({ 
+        error: "QR tokens can only be issued within 24 hours of your booking time",
+        availableAt: new Date(new Date(booking.date).getTime() - 24 * 60 * 60 * 1000).toISOString()
+      });
+    }
+
+    // Check for existing active token
+    if (booking.qrTokenHash && booking.qrTokenExpiresAt && booking.qrTokenIssuedAt && !forceRegenerate) {
+      const existingTokenExpired = isTokenExpired(new Date(booking.qrTokenExpiresAt));
+      if (!existingTokenExpired) {
+        // Inform user they have an active token and need to force regenerate if lost
+        return res.status(409).json({ 
+          error: "Active QR code already exists",
+          message: "You already have an active QR code. If you've lost it, click 'Regenerate' to create a new one (this will invalidate the previous code).",
+          issuedAt: booking.qrTokenIssuedAt,
+          expiresAt: booking.qrTokenExpiresAt,
+          hasActiveToken: true,
+          canForceRegenerate: true
+        });
+      }
+    }
+
+    // Generate new token (either first time, expired, or force regenerate)
+    const qrToken = generateQRToken(new Date(booking.date));
+    
+    // Update booking with token hash
+    await storage.updateBookingQRToken(
+      booking.id,
+      qrToken.hash,
+      qrToken.issuedAt,
+      qrToken.expiresAt
+    );
+
+    // Generate QR code image
+    const qrCodeDataUrl = await generateQRCodeImage(qrToken.token, booking.id);
+
+    res.json({
+      token: qrToken.token,
+      qrCodeImage: qrCodeDataUrl,
+      issuedAt: qrToken.issuedAt,
+      expiresAt: qrToken.expiresAt,
+      hasActiveToken: false
+    });
+  });
+
+  // QR Token Validation - Scan and check in
+  app.post("/api/check-in/scan", async (req, res) => {
+    const { hashToken, isTokenExpired } = await import("./qr-utils");
+    const { token, scannerUserId, scannerLocation } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token is required" });
+    }
+
+    // Hash the token
+    const tokenHash = hashToken(token);
+
+    // Find booking by token hash
+    const booking = await storage.getBookingByQRTokenHash(tokenHash);
+    if (!booking) {
+      return res.status(404).json({ error: "Invalid QR code" });
+    }
+
+    // Check if already checked in
+    if (booking.status === "checked_in") {
+      return res.status(400).json({ 
+        error: "Already checked in",
+        checkedInAt: booking.checkedInAt
+      });
+    }
+
+    // Check if token is expired
+    if (!booking.qrTokenExpiresAt || isTokenExpired(new Date(booking.qrTokenExpiresAt))) {
+      // Log failed check-in attempt
+      await storage.createBookingCheckin({
+        bookingId: booking.id,
+        qrTokenHash: tokenHash,
+        status: "expired",
+        scannerUserId: scannerUserId || null,
+        scannerLocation: scannerLocation || null
+      });
+      
+      return res.status(400).json({ error: "QR code has expired. Please generate a new one." });
+    }
+
+    // Process check-in
+    const checkedInBooking = await storage.checkInBookingWithToken(
+      booking.id,
+      scannerUserId || "system"
+    );
+
+    // Log successful check-in
+    await storage.createBookingCheckin({
+      bookingId: booking.id,
+      qrTokenHash: tokenHash,
+      status: "validated",
+      scannerUserId: scannerUserId || null,
+      scannerLocation: scannerLocation || null
+    });
+
+    // Get pet details for confirmation
+    const pet = await storage.getPet(booking.petId);
+
+    res.json({
+      success: true,
+      booking: checkedInBooking,
+      pet: pet,
+      message: `${pet?.name} checked in successfully!`
+    });
+  });
+
+  // Get QR token status for a booking
+  app.get("/api/bookings/:id/qr-status", async (req, res) => {
+    const { isTokenExpired, canIssueToken } = await import("./qr-utils");
+    
+    const booking = await storage.getBooking(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+
+    // Block token issuance for terminal states
+    const isTerminalState = ["checked_in", "cancelled", "completed"].includes(booking.status);
+    const canIssue = !isTerminalState && canIssueToken(new Date(booking.date));
+    const hasToken = !!booking.qrTokenHash;
+    const isExpired = booking.qrTokenExpiresAt ? isTokenExpired(new Date(booking.qrTokenExpiresAt)) : true;
+
+    res.json({
+      canIssueToken: canIssue,
+      hasActiveToken: hasToken && !isExpired,
+      tokenExpiresAt: booking.qrTokenExpiresAt,
+      tokenIssuedAt: booking.qrTokenIssuedAt,
+      bookingStatus: booking.status,
+      checkedInAt: booking.checkedInAt,
+      isTerminalState: isTerminalState
+    });
   });
 
   app.get("/api/check-in/:qrCode", async (req, res) => {

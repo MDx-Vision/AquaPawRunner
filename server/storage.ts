@@ -259,6 +259,45 @@ export class DatabaseStorage implements IStorage {
     return booking || undefined;
   }
 
+  async getBookingByQRTokenHash(tokenHash: string): Promise<Booking | undefined> {
+    const [booking] = await db.select().from(bookings).where(eq(bookings.qrTokenHash, tokenHash));
+    return booking || undefined;
+  }
+
+  async updateBookingQRToken(id: string, tokenHash: string, issuedAt: Date, expiresAt: Date): Promise<Booking | undefined> {
+    const [updated] = await db.update(bookings)
+      .set({
+        qrTokenHash: tokenHash,
+        qrTokenIssuedAt: issuedAt,
+        qrTokenExpiresAt: expiresAt
+      })
+      .where(eq(bookings.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async checkInBookingWithToken(id: string, verifiedBy: string): Promise<Booking | undefined> {
+    const [booking] = await db.update(bookings)
+      .set({
+        status: "checked_in",
+        checkedInAt: new Date(),
+        checkInVerifiedBy: verifiedBy
+      })
+      .where(eq(bookings.id, id))
+      .returning();
+    return booking || undefined;
+  }
+
+  // Booking Check-ins
+  async createBookingCheckin(checkin: InsertBookingCheckin): Promise<BookingCheckin> {
+    const [created] = await db.insert(bookingCheckins).values(checkin).returning();
+    return created;
+  }
+
+  async getBookingCheckins(bookingId: string): Promise<BookingCheckin[]> {
+    return db.select().from(bookingCheckins).where(eq(bookingCheckins.bookingId, bookingId)).orderBy(desc(bookingCheckins.scannedAt));
+  }
+
   // Payments
   async getPayment(id: string): Promise<Payment | undefined> {
     const [payment] = await db.select().from(payments).where(eq(payments.id, id));

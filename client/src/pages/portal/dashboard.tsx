@@ -7,6 +7,8 @@ import dogAvatar from "@assets/generated_images/golden_retriever_avatar.png";
 import { useQuery } from "@tanstack/react-query";
 import { getUserByEmail, getPetsByUser, getUpcomingBookings, getSessionsByUser, getPackagesByUser } from "@/lib/api";
 import { format } from "date-fns";
+import { QRCheckIn } from "@/components/qr-checkin";
+import { BookingActions } from "@/components/booking-actions";
 
 // For demo purposes - in production this would come from auth
 const DEMO_USER_EMAIL = "sarah@example.com";
@@ -143,13 +145,24 @@ export default function PortalDashboard() {
                   <MapPin className="w-4 h-4" />
                   <span data-testid="text-booking-location">{nextBooking.location}</span>
                 </div>
-                <Button className="w-full bg-white text-primary hover:bg-white/90 font-bold mt-2" data-testid="button-reschedule">
-                  Reschedule
-                </Button>
+                <div className="mt-4 pt-4 border-t border-white/20">
+                  <BookingActions 
+                    bookingId={nextBooking.id}
+                    currentDate={new Date(nextBooking.date)}
+                    currentTimeSlot={nextBooking.timeSlot}
+                  />
+                </div>
               </CardContent>
             </Card>
           )}
         </div>
+
+        {/* QR Check-In Section */}
+        {nextBooking && (
+          <div className="max-w-md mx-auto">
+            <QRCheckIn bookingId={nextBooking.id} bookingDate={new Date(nextBooking.date)} />
+          </div>
+        )}
 
         {/* Stats & History */}
         <div className="grid md:grid-cols-2 gap-6">

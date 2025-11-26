@@ -10,6 +10,7 @@ import Services from "@/pages/services";
 import PortalDashboard from "@/pages/portal/dashboard";
 import BookingPage from "@/pages/portal/booking";
 import Vaccinations from "@/pages/portal/vaccinations";
+import StaffScanner from "@/pages/staff/scanner";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/portal" component={PortalDashboard} />
       <Route path="/portal/book" component={BookingPage} />
       <Route path="/portal/vaccinations" component={Vaccinations} />
+      <Route path="/staff/scanner" component={StaffScanner} />
       <Route path="/portal/:any*" component={PortalDashboard} />
       <Route component={NotFound} />
     </Switch>
