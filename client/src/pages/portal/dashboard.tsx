@@ -174,21 +174,23 @@ export default function PortalDashboard() {
             <CardContent>
               <div className="space-y-4">
                 {recentSessions.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50" data-testid={`card-session-${session.id}`}>
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold">
-                        {session.duration || 0}
+                  <Link key={session.id} href={`/portal/sessions/${session.id}`}>
+                    <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors border border-transparent hover:border-border/50" data-testid={`card-session-${session.id}`}>
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold">
+                          {session.duration || 0}
+                        </div>
+                        <div>
+                          <p className="font-medium">Standard Run</p>
+                          <p className="text-sm text-muted-foreground">{format(new Date(session.completedAt), 'EEE, MMM d')}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">Standard Run</p>
-                        <p className="text-sm text-muted-foreground">{format(new Date(session.completedAt), 'EEE, MMM d')}</p>
+                      <div className="text-right">
+                        <p className="font-medium">{session.distance || 'N/A'}</p>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Completed</span>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium">{session.distance || 'N/A'}</p>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">Completed</span>
-                    </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </CardContent>
