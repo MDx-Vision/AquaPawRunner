@@ -27,9 +27,11 @@ export function Navbar() {
             <Phone className="h-4 w-4" />
             (555) 123-4567
           </Button>
-          <Button className="bg-secondary hover:bg-secondary/90 text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
-            Book Session
-          </Button>
+          <Link href="/portal">
+            <Button className="bg-secondary hover:bg-secondary/90 text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+              Book Session
+            </Button>
+          </Link>
         </div>
 
         <Sheet>
@@ -44,7 +46,9 @@ export function Navbar() {
               <Link href="#"><a className="text-lg font-medium">About Us</a></Link>
               <Link href="#"><a className="text-lg font-medium">Services</a></Link>
               <Link href="#"><a className="text-lg font-medium">Contact</a></Link>
-              <Button className="w-full bg-secondary text-white">Book Now</Button>
+              <Link href="/portal">
+                <Button className="w-full bg-secondary text-white">Book Now</Button>
+              </Link>
             </div>
           </SheetContent>
         </Sheet>
