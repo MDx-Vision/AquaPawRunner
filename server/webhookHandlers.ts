@@ -1,6 +1,7 @@
 import { getStripeSync } from './stripeClient';
 import { storage } from './storage';
 import Stripe from 'stripe';
+import { notificationManager } from './notifications';
 
 export class WebhookHandlers {
   static async processWebhook(payload: Buffer, signature: string, uuid: string): Promise<void> {
@@ -31,6 +32,22 @@ export class WebhookHandlers {
         await storage.updatePaymentByStripeIntent(paymentIntent.id, {
           status: 'succeeded',
         });
+        
+        // Send booking confirmation notification
+        try {
+          const payment = await storage.getPaymentByStripeIntent(paymentIntent.id);
+          if (payment) {
+            const booking = await storage.getBooking(payment.bookingId);
+            const user = await storage.getUser(payment.userId);
+            const pet = booking ? await storage.getPet(booking.petId) : null;
+            
+            if (booking && user && pet) {
+              await notificationManager.sendBookingConfirmation(booking, pet, user);
+            }
+          }
+        } catch (err: any) {
+          console.error('[Webhook] Failed to send booking confirmation:', err.message);
+        }
         break;
       }
 

@@ -250,6 +250,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Cancel the booking
       const cancelledBooking = await storage.cancelBooking(req.params.id);
 
+      // Send cancellation confirmation notification
+      try {
+        const user = await storage.getUser(booking.userId);
+        const pet = await storage.getPet(booking.petId);
+        if (user && pet) {
+          const refundAmount = refundResult?.amount ? Math.round(refundResult.amount * 100) : undefined;
+          await notificationManager.sendCancellationConfirmation(cancelledBooking, pet, user, refundAmount);
+        }
+      } catch (err: any) {
+        console.error('[Cancel] Failed to send notification:', err.message);
+      }
+
       res.json({
         booking: cancelledBooking,
         refund: refundResult,
@@ -260,6 +272,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Cancel booking error:", error);
       res.status(500).json({ error: error.message || "Failed to cancel booking" });
+    }
+  });
+
+  app.post("/api/bookings/:id/complete", async (req, res) => {
+    try {
+      const { mediaUrl } = req.body; // Optional media URL for photos/videos
+      
+      const booking = await storage.getBooking(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+
+      // Block completion for terminal states
+      if (booking.status === "cancelled") {
+        return res.status(400).json({ error: "Cannot complete a cancelled booking" });
+      }
+      if (booking.status === "completed") {
+        return res.status(400).json({ error: "Booking is already completed" });
+      }
+
+      // Mark booking as completed
+      const completedBooking = await storage.updateBooking(req.params.id, {
+        status: "completed"
+      });
+
+      // Send session complete notification
+      try {
+        const user = await storage.getUser(booking.userId);
+        const pet = await storage.getPet(booking.petId);
+        if (user && pet && completedBooking) {
+          await notificationManager.sendSessionComplete(completedBooking, pet, user, mediaUrl);
+        }
+      } catch (err: any) {
+        console.error('[Complete] Failed to send notification:', err.message);
+      }
+
+      res.json({
+        booking: completedBooking,
+        message: "Session marked as completed"
+      });
+    } catch (error: any) {
+      console.error("Complete booking error:", error);
+      res.status(500).json({ error: error.message || "Failed to complete booking" });
     }
   });
 
@@ -300,11 +355,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update the booking with new date/time
+      const oldDate = originalDate;
       const updatedBooking = await storage.updateBooking(req.params.id, {
         date: new Date(newDate),
         timeSlot: newTimeSlot,
         status: "scheduled"
       });
+
+      // Send reschedule confirmation notification
+      try {
+        const user = await storage.getUser(booking.userId);
+        const pet = await storage.getPet(booking.petId);
+        if (user && pet && updatedBooking) {
+          await notificationManager.sendRescheduleConfirmation(updatedBooking, pet, user, oldDate);
+        }
+      } catch (err: any) {
+        console.error('[Reschedule] Failed to send notification:', err.message);
+      }
 
       res.json({
         booking: updatedBooking,
@@ -491,6 +558,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ error: "Booking not found" });
     }
     res.json(booking);
+  });
+
+  // Cron/Scheduler Endpoints
+  app.post("/api/cron/send-reminders", async (req, res) => {
+    try {
+      // Query bookings happening in approximately 24 hours (23-25 hour window)
+      const now = new Date();
+      const windowStart = new Date(now.getTime() + 23 * 60 * 60 * 1000);
+      const windowEnd = new Date(now.getTime() + 25 * 60 * 60 * 1000);
+      
+      const allBookings = await storage.getAllBookings();
+      const upcomingBookings = allBookings.filter(booking => {
+        const bookingDate = new Date(booking.date);
+        return bookingDate >= windowStart && 
+               bookingDate <= windowEnd && 
+               booking.status === "scheduled";
+      });
+
+      const results = [];
+      for (const booking of upcomingBookings) {
+        try {
+          const user = await storage.getUser(booking.userId);
+          const pet = await storage.getPet(booking.petId);
+          
+          if (user && pet) {
+            await notificationManager.sendBookingReminder(booking, pet, user);
+            results.push({ bookingId: booking.id, status: "sent" });
+          }
+        } catch (err: any) {
+          console.error(`[Cron] Failed to send reminder for booking ${booking.id}:`, err.message);
+          results.push({ bookingId: booking.id, status: "failed", error: err.message });
+        }
+      }
+
+      res.json({
+        processed: upcomingBookings.length,
+        results: results,
+        message: `Processed ${upcomingBookings.length} booking reminders`
+      });
+    } catch (error: any) {
+      console.error("[Cron] Send reminders error:", error);
+      res.status(500).json({ error: error.message || "Failed to send reminders" });
+    }
   });
 
   // Payments

@@ -75,6 +75,7 @@ export interface IStorage {
   getBookingByQRCode(qrCode: string): Promise<Booking | undefined>;
   getBookingByQRTokenHash(tokenHash: string): Promise<Booking | undefined>;
   getBookingsByUser(userId: string): Promise<Booking[]>;
+  getAllBookings(): Promise<Booking[]>;
   getUpcomingBookings(userId: string): Promise<Booking[]>;
   createBooking(booking: InsertBooking): Promise<Booking>;
   updateBooking(id: string, booking: Partial<InsertBooking>): Promise<Booking | undefined>;
@@ -225,6 +226,10 @@ export class DatabaseStorage implements IStorage {
 
   async getBookingsByUser(userId: string): Promise<Booking[]> {
     return db.select().from(bookings).where(eq(bookings.userId, userId)).orderBy(desc(bookings.date));
+  }
+
+  async getAllBookings(): Promise<Booking[]> {
+    return db.select().from(bookings).orderBy(desc(bookings.date));
   }
 
   async getUpcomingBookings(userId: string): Promise<Booking[]> {
