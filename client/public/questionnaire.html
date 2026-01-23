@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoPAWZ Client Questionnaire</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    h1 {
+      color: #06B6D4;
+      border-bottom: 3px solid #FF6B35;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      color: #06B6D4;
+      background: #f8f9fa;
+      padding: 12px 15px;
+      margin-top: 40px;
+      border-left: 4px solid #FF6B35;
+    }
+
+    h3 {
+      color: #555;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+
+    .intro {
+      background: #e8f7f9;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="url"],
+    input[type="date"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #06B6D4;
+      box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .checkbox-group,
+    .radio-group {
+      margin-top: 10px;
+    }
+
+    .checkbox-group label,
+    .radio-group label {
+      display: flex;
+      align-items: flex-start;
+      font-weight: normal;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    .checkbox-group input,
+    .radio-group input {
+      margin-right: 10px;
+      margin-top: 4px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .inline-group {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .inline-group label {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .inline-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .inline-input label {
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .inline-input input {
+      width: 150px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #f5f5f5;
+    }
+
+    td input,
+    td select {
+      margin: 0;
+      border: none;
+      background: transparent;
+    }
+
+    td input:focus {
+      box-shadow: none;
+      background: #fffde7;
+    }
+
+    .note {
+      font-size: 13px;
+      color: #666;
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    .required::after {
+      content: " *";
+      color: #e53935;
+    }
+
+    .section-note {
+      background: #fff8e1;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .price-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .price-card h4 {
+      margin: 0 0 15px 0;
+      color: #06B6D4;
+    }
+
+    .time-slots {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .time-slots label {
+      font-size: 13px;
+      margin: 0;
+      padding: 5px;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+
+    .submit-section {
+      background: #06B6D4;
+      color: white;
+      padding: 30px;
+      border-radius: 8px;
+      margin-top: 50px;
+      text-align: center;
+    }
+
+    .submit-section h2 {
+      color: white;
+      background: transparent;
+      border: none;
+      margin: 0 0 15px 0;
+      padding: 0;
+    }
+
+    @media print {
+      body {
+        padding: 20px;
+      }
+
+      h2 {
+        page-break-after: avoid;
+      }
+
+      .price-card,
+      table {
+        page-break-inside: avoid;
+      }
+
+      input, textarea, select {
+        border: 1px solid #999 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🐾 GoPAWZ Client Questionnaire</h1>
+
+<div class="intro">
+  <strong>Instructions:</strong> Please complete all sections below to help us finalize your app and website.
+  Fill in the text fields and check the boxes that apply. Required fields are marked with <span style="color: #e53935;">*</span>
+</div>
+
+<!-- SECTION 1 -->
+<h2>Section 1: Business Information</h2>
+
+<h3>1.1 Basic Details</h3>
+
+<label class="required">Business Legal Name</label>
+<input type="text" name="business_name" placeholder="Enter your registered business name">
+
+<label>DBA / Trade Name (if different)</label>
+<input type="text" name="dba" placeholder="Enter DBA if applicable">
+
+<label class="required">Business Address</label>
+<input type="text" name="address" placeholder="Street address, City, State, ZIP">
+
+<label class="required">Business Phone</label>
+<input type="tel" name="phone" placeholder="(555) 555-5555">
+
+<label class="required">Business Email</label>
+<input type="email" name="email" placeholder="hello@gopawz.com">
+
+<label>Website Domain (if already purchased)</label>
+<input type="url" name="domain" placeholder="https://gopawz.com">
+
+<h3>1.2 Service Area</h3>
+
+<label class="required">Primary Service Area</label>
+<input type="text" name="service_area" placeholder="e.g., Orange County, CA" value="Orange County, CA">
+
+<label>Specific Cities or Zip Codes Served</label>
+<textarea name="cities" placeholder="List all cities or zip codes you service..."></textarea>
+
+<label>Do you charge extra for certain areas?</label>
+<div class="radio-group">
+  <label><input type="radio" name="area_surcharge" value="no"> No additional charges</label>
+  <label><input type="radio" name="area_surcharge" value="yes"> Yes, some areas have surcharges</label>
+</div>
+
+<label>If yes, specify areas and amounts</label>
+<textarea name="surcharge_details" placeholder="e.g., South County: +$10, North of Fullerton: +$15"></textarea>
+
+<h3>1.3 Hours of Operation</h3>
+
+<table>
+  <tr>
+    <th>Day</th>
+    <th>Opening Time</th>
+    <th>Closing Time</th>
+    <th>Closed?</th>
+  </tr>
+  <tr>
+    <td>Monday</td>
+    <td><input type="text" placeholder="9:00 AM"></td>
+    <td><input type="text" placeholder="6:00 PM"></td>
+    <td><input type="checkbox"></td>
+  </tr>
+  <tr>
+    <td>Tuesday</td>
+    <td><input type="text" placeholder="9:00 AM"></td>
+    <td><input type="text" placeholder="6:00 PM"></td>
+    <td><input type="checkbox"></td>
+  </tr>
+  <tr>
+    <td>Wednesday</td>
+    <td><input type="text" placeholder="9:00 AM"></td>
+    <td><input type="text" placeholder="6:00 PM"></td>
+    <td><input type="checkbox"></td>
+  </tr>
+  <tr>
+    <td>Thursday</td>
+    <td><input type="text" placeholder="9:00 AM"></td>
+    <td><input type="text" placeholder="6:00 PM"></td>
+    <td><input type="checkbox"></td>
+  </tr>
+  <tr>
+    <td>Friday</td>
+    <td><input type="text" placeholder="9:00 AM"></td>
+    <td><input type="text" placeholder="6:00 PM"></td>
+    <td><input type="checkbox"></td>
+  </tr>
+  <tr>
+    <td>Saturday</td>
+    <td><input type="text" placeholder="10:00 AM"></td>
+    <td><input type="text" placeholder="4:00 PM"></td>
+    <td><input type="checkbox"></td>
+  </tr>
+  <tr>
+    <td>Sunday</td>
+    <td><input type="text" placeholder=""></td>
+    <td><input type="text" placeholder=""></td>
+    <td><input type="checkbox"></td>
+  </tr>
+</table>
+
+<label>Holiday Schedule</label>
+<div class="radio-group">
+  <label><input type="radio" name="holidays" value="closed"> Closed all major holidays</label>
+  <label><input type="radio" name="holidays" value="some"> Open some holidays</label>
+  <label><input type="radio" name="holidays" value="custom"> Custom schedule</label>
+</div>
+
+<label>Holiday details (if applicable)</label>
+<textarea name="holiday_details" placeholder="List specific holidays and hours..."></textarea>
+
+<!-- SECTION 2 -->
+<h2>Section 2: Services & Pricing</h2>
+
+<h3>2.1 Service Tiers</h3>
+<p class="note">Please confirm or update the current service offerings:</p>
+
+<div class="price-grid">
+  <div class="price-card">
+    <h4>Express Session</h4>
+    <label>Duration (minutes)</label>
+    <input type="number" name="express_duration" placeholder="30" value="30">
+    <label>Price ($)</label>
+    <input type="number" name="express_price" placeholder="35" value="35">
+    <label>Description</label>
+    <textarea name="express_desc" placeholder="Quick cardio burst for busy schedules"></textarea>
+  </div>
+
+  <div class="price-card">
+    <h4>Standard Session</h4>
+    <label>Duration (minutes)</label>
+    <input type="number" name="standard_duration" placeholder="45" value="45">
+    <label>Price ($)</label>
+    <input type="number" name="standard_price" placeholder="55" value="55">
+    <label>Description</label>
+    <textarea name="standard_desc" placeholder="Full workout with warm-up and cool-down"></textarea>
+  </div>
+
+  <div class="price-card">
+    <h4>Pro Session</h4>
+    <label>Duration (minutes)</label>
+    <input type="number" name="pro_duration" placeholder="60" value="60">
+    <label>Price ($)</label>
+    <input type="number" name="pro_price" placeholder="75" value="75">
+    <label>Description</label>
+    <textarea name="pro_desc" placeholder="Extended session with strength training"></textarea>
+  </div>
+</div>
+
+<h3>2.2 Additional Services</h3>
+<p class="note">Check all that apply and provide pricing:</p>
+
+<div class="checkbox-group">
+  <label><input type="checkbox" name="multi_dog"> Multi-Dog Discount: <input type="text" style="width: 60px; display: inline;" placeholder="15">% off additional dogs</label>
+  <label><input type="checkbox" name="puppy"> Puppy Sessions (under 6 months): $<input type="text" style="width: 60px; display: inline;" placeholder="45"></label>
+  <label><input type="checkbox" name="senior"> Senior Dog Sessions (8+ years): $<input type="text" style="width: 60px; display: inline;" placeholder="45"></label>
+  <label><input type="checkbox" name="special_needs"> Special Needs Sessions: $<input type="text" style="width: 60px; display: inline;" placeholder=""></label>
+</div>
+
+<label>Add-on Services</label>
+<div class="checkbox-group">
+  <label><input type="checkbox" name="addon_nails"> Nail Trim: $<input type="text" style="width: 60px; display: inline;" placeholder="15"></label>
+  <label><input type="checkbox" name="addon_teeth"> Teeth Brushing: $<input type="text" style="width: 60px; display: inline;" placeholder="10"></label>
+  <label><input type="checkbox" name="addon_paw"> Paw Balm Treatment: $<input type="text" style="width: 60px; display: inline;" placeholder="8"></label>
+  <label><input type="checkbox" name="addon_other"> Other: <input type="text" style="width: 150px; display: inline;" placeholder="Service name"> $<input type="text" style="width: 60px; display: inline;" placeholder=""></label>
+</div>
+
+<h3>2.3 Package Deals</h3>
+
+<div class="checkbox-group">
+  <label><input type="checkbox" name="pkg_5"> 5-Session Package: $<input type="text" style="width: 80px; display: inline;" placeholder=""> (<input type="text" style="width: 40px; display: inline;" placeholder="10">% savings)</label>
+  <label><input type="checkbox" name="pkg_10"> 10-Session Package: $<input type="text" style="width: 80px; display: inline;" placeholder=""> (<input type="text" style="width: 40px; display: inline;" placeholder="15">% savings)</label>
+  <label><input type="checkbox" name="pkg_unlimited"> Monthly Unlimited: $<input type="text" style="width: 80px; display: inline;" placeholder="">/month</label>
+</div>
+
+<label>Package Expiration</label>
+<select name="pkg_expiration">
+  <option value="">Select expiration period...</option>
+  <option value="30">30 days</option>
+  <option value="60">60 days</option>
+  <option value="90">90 days</option>
+  <option value="180">6 months</option>
+  <option value="365">1 year</option>
+  <option value="never">Never expires</option>
+</select>
+
+<h3>2.4 First-Time Customer Offer</h3>
+
+<div class="radio-group">
+  <label><input type="radio" name="first_time" value="percent"> Percentage discount: <input type="text" style="width: 50px; display: inline;" placeholder="20">% off first session</label>
+  <label><input type="radio" name="first_time" value="dollar"> Dollar discount: $<input type="text" style="width: 50px; display: inline;" placeholder="10"> off first session</label>
+  <label><input type="radio" name="first_time" value="none"> No first-time discount</label>
+</div>
+
+<!-- SECTION 3 -->
+<h2>Section 3: Booking Policies</h2>
+
+<h3>3.1 Cancellation Policy</h3>
+
+<table>
+  <tr>
+    <th>Time Before Appointment</th>
+    <th>Refund Percentage</th>
+  </tr>
+  <tr>
+    <td>More than 24 hours before</td>
+    <td><input type="text" placeholder="100" value="100">%</td>
+  </tr>
+  <tr>
+    <td>12-24 hours before</td>
+    <td><input type="text" placeholder="50">%</td>
+  </tr>
+  <tr>
+    <td>2-12 hours before</td>
+    <td><input type="text" placeholder="50">%</td>
+  </tr>
+  <tr>
+    <td>Less than 2 hours before</td>
+    <td><input type="text" placeholder="0">%</td>
+  </tr>
+</table>
+
+<h3>3.2 Reschedule Policy</h3>
+
+<div class="inline-group">
+  <label>Minimum notice required:
+    <input type="number" placeholder="12" value="12"> hours
+  </label>
+  <label>Maximum reschedules per booking:
+    <select name="max_reschedules">
+      <option value="unlimited">Unlimited</option>
+      <option value="1">1</option>
+      <option value="2" selected>2</option>
+      <option value="3">3</option>
+    </select>
+  </label>
+</div>
+
+<label>Reschedule fee?</label>
+<div class="radio-group">
+  <label><input type="radio" name="reschedule_fee" value="no" checked> No fee</label>
+  <label><input type="radio" name="reschedule_fee" value="yes"> Yes: $<input type="text" style="width: 60px; display: inline;" placeholder="10"></label>
+</div>
+
+<h3>3.3 No-Show Policy</h3>
+
+<label>First no-show</label>
+<select name="noshow_1">
+  <option value="">Select action...</option>
+  <option value="warning">Warning only</option>
+  <option value="charge">Charge full amount</option>
+  <option value="partial">Charge 50%</option>
+</select>
+
+<label>Second no-show</label>
+<select name="noshow_2">
+  <option value="">Select action...</option>
+  <option value="charge">Charge full amount</option>
+  <option value="prepay">Require prepayment for future bookings</option>
+  <option value="block">Block from booking</option>
+</select>
+
+<label>Third no-show</label>
+<select name="noshow_3">
+  <option value="">Select action...</option>
+  <option value="block">Block from booking</option>
+  <option value="prepay">Require prepayment</option>
+  <option value="ban">Permanent ban</option>
+</select>
+
+<h3>3.4 Booking Windows</h3>
+
+<div class="inline-group">
+  <label>How far in advance can customers book?
+    <select name="advance_booking">
+      <option value="7">1 week</option>
+      <option value="14">2 weeks</option>
+      <option value="30" selected>1 month</option>
+      <option value="60">2 months</option>
+      <option value="90">3 months</option>
+    </select>
+  </label>
+  <label>Minimum advance notice:
+    <select name="min_advance">
+      <option value="0">Same day OK</option>
+      <option value="24" selected>24 hours</option>
+      <option value="48">48 hours</option>
+    </select>
+  </label>
+</div>
+
+<h3>3.5 Available Time Slots</h3>
+<p class="note">Check all time slots you want to offer:</p>
+
+<label><strong>Morning</strong></label>
+<div class="time-slots">
+  <label><input type="checkbox"> 7:00 AM</label>
+  <label><input type="checkbox"> 7:30 AM</label>
+  <label><input type="checkbox" checked> 8:00 AM</label>
+  <label><input type="checkbox" checked> 8:30 AM</label>
+  <label><input type="checkbox" checked> 9:00 AM</label>
+  <label><input type="checkbox" checked> 9:30 AM</label>
+  <label><input type="checkbox" checked> 10:00 AM</label>
+  <label><input type="checkbox" checked> 10:30 AM</label>
+  <label><input type="checkbox" checked> 11:00 AM</label>
+  <label><input type="checkbox"> 11:30 AM</label>
+</div>
+
+<label><strong>Afternoon</strong></label>
+<div class="time-slots">
+  <label><input type="checkbox"> 12:00 PM</label>
+  <label><input type="checkbox"> 12:30 PM</label>
+  <label><input type="checkbox" checked> 1:00 PM</label>
+  <label><input type="checkbox" checked> 1:30 PM</label>
+  <label><input type="checkbox" checked> 2:00 PM</label>
+  <label><input type="checkbox" checked> 2:30 PM</label>
+  <label><input type="checkbox" checked> 3:00 PM</label>
+  <label><input type="checkbox" checked> 3:30 PM</label>
+  <label><input type="checkbox" checked> 4:00 PM</label>
+  <label><input type="checkbox" checked> 4:30 PM</label>
+  <label><input type="checkbox" checked> 5:00 PM</label>
+  <label><input type="checkbox"> 5:30 PM</label>
+</div>
+
+<label><strong>Evening</strong></label>
+<div class="time-slots">
+  <label><input type="checkbox"> 6:00 PM</label>
+  <label><input type="checkbox"> 6:30 PM</label>
+  <label><input type="checkbox"> 7:00 PM</label>
+  <label><input type="checkbox"> 7:30 PM</label>
+</div>
+
+<label>Buffer time between appointments (for travel)</label>
+<input type="number" name="buffer_time" placeholder="30" value="30"> minutes
+
+<!-- SECTION 4 -->
+<h2>Section 4: Pet Requirements</h2>
+
+<h3>4.1 Required Vaccinations</h3>
+<p class="note">Check all vaccinations that must be current:</p>
+
+<div class="checkbox-group">
+  <label><input type="checkbox" checked> Rabies (required by law)</label>
+  <label><input type="checkbox" checked> DHPP/DAPP (Distemper, Hepatitis, Parvo, Parainfluenza)</label>
+  <label><input type="checkbox" checked> Bordetella (Kennel Cough)</label>
+  <label><input type="checkbox"> Canine Influenza</label>
+  <label><input type="checkbox"> Leptospirosis</label>
+  <label><input type="checkbox"> Other: <input type="text" style="width: 200px; display: inline;" placeholder=""></label>
+</div>
+
+<h3>4.2 Vaccination Documentation</h3>
+
+<label>How should customers provide proof?</label>
+<div class="checkbox-group">
+  <label><input type="checkbox" checked> Upload photo/PDF in app</label>
+  <label><input type="checkbox"> Email to staff</label>
+  <label><input type="checkbox"> Show at first appointment</label>
+  <label><input type="checkbox"> Vet can send directly</label>
+</div>
+
+<label>Expiration warning - notify customers how many days before expiration?</label>
+<input type="number" name="vax_warning" placeholder="30" value="30"> days
+
+<h3>4.3 Pet Restrictions</h3>
+
+<div class="inline-group">
+  <label>Minimum age:
+    <input type="number" placeholder="4" value="4"> months
+  </label>
+  <label>Maximum age:
+    <select name="max_age">
+      <option value="none" selected>No limit</option>
+      <option value="12">12 years</option>
+      <option value="14">14 years</option>
+      <option value="16">16 years</option>
+    </select>
+  </label>
+</div>
+
+<div class="inline-group">
+  <label>Minimum weight:
+    <input type="number" placeholder="10"> lbs (leave blank for no minimum)
+  </label>
+  <label>Maximum weight:
+    <input type="number" placeholder=""> lbs (leave blank for no maximum)
+  </label>
+</div>
+
+<label>Breed restrictions</label>
+<div class="radio-group">
+  <label><input type="radio" name="breed_restrict" value="none" checked> No breed restrictions</label>
+  <label><input type="radio" name="breed_restrict" value="yes"> Certain breeds restricted (list below)</label>
+</div>
+<textarea name="restricted_breeds" placeholder="List any restricted breeds..."></textarea>
+
+<h3>4.4 Behavioral Requirements</h3>
+
+<div class="checkbox-group">
+  <label><input type="checkbox" checked> Dogs must be non-aggressive</label>
+  <label><input type="checkbox"> Dogs must be socialized with other dogs</label>
+  <label><input type="checkbox"> Dogs must respond to basic commands</label>
+  <label><input type="checkbox" checked> Owner must disclose behavioral issues</label>
+  <label><input type="checkbox"> First session is an assessment</label>
+</div>
+
+<label>Other behavioral requirements</label>
+<textarea name="other_behavior" placeholder="Any other requirements..."></textarea>
+
+<h3>4.5 Health Requirements</h3>
+
+<div class="checkbox-group">
+  <label><input type="checkbox"> Dogs must be spayed/neutered if over <input type="text" style="width: 40px; display: inline;" placeholder="12"> months</label>
+  <label><input type="checkbox" checked> Dogs must be on flea/tick prevention</label>
+  <label><input type="checkbox" checked> Dogs must be in good health (no contagious conditions)</label>
+  <label><input type="checkbox" checked> Female dogs in heat cannot participate</label>
+</div>
+
+<!-- SECTION 5 -->
+<h2>Section 5: User Accounts & Authentication</h2>
+
+<h3>5.1 Login Options</h3>
+<p class="note">Check all login methods you want to offer:</p>
+
+<div class="checkbox-group">
+  <label><input type="checkbox" checked> Email + Password (traditional)</label>
+  <label><input type="checkbox" checked> Google Sign-In</label>
+  <label><input type="checkbox"> Apple Sign-In</label>
+  <label><input type="checkbox"> Facebook Sign-In</label>
+  <label><input type="checkbox"> Phone Number + SMS Code</label>
+  <label><input type="checkbox"> Magic Link (email a login link, no password)</label>
+</div>
+
+<label>Preferred primary method</label>
+<select name="primary_auth">
+  <option value="">Select preferred method...</option>
+  <option value="email">Email + Password</option>
+  <option value="google">Google Sign-In</option>
+  <option value="apple">Apple Sign-In</option>
+  <option value="phone">Phone + SMS</option>
+  <option value="magic">Magic Link</option>
+</select>
+
+<h3>5.2 Account Requirements</h3>
+
+<table>
+  <tr>
+    <th>Field</th>
+    <th>Required?</th>
+  </tr>
+  <tr>
+    <td>Phone Number</td>
+    <td>
+      <select name="phone_required">
+        <option value="required">Required</option>
+        <option value="optional">Optional</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td>Address</td>
+    <td>
+      <select name="address_required">
+        <option value="required">Required</option>
+        <option value="optional" selected>Optional</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td>Emergency Contact</td>
+    <td>
+      <select name="emergency_required">
+        <option value="required">Required</option>
+        <option value="optional" selected>Optional</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td>"How did you hear about us?"</td>
+    <td>
+      <select name="referral_source_required">
+        <option value="required">Required</option>
+        <option value="optional">Optional</option>
+        <option value="hide">Don't ask</option>
+      </select>
+    </td>
+  </tr>
+</table>
+
+<h3>5.3 Staff Accounts</h3>
+
+<label>How many staff members need accounts?</label>
+<input type="number" name="staff_count" placeholder="3">
+
+<label>Staff members needing accounts:</label>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Role</th>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Full name"></td>
+    <td><input type="email" placeholder="email@example.com"></td>
+    <td>
+      <select>
+        <option value="admin">Admin (full access)</option>
+        <option value="manager">Manager</option>
+        <option value="staff">Staff (check-in only)</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Full name"></td>
+    <td><input type="email" placeholder="email@example.com"></td>
+    <td>
+      <select>
+        <option value="admin">Admin (full access)</option>
+        <option value="manager">Manager</option>
+        <option value="staff">Staff (check-in only)</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Full name"></td>
+    <td><input type="email" placeholder="email@example.com"></td>
+    <td>
+      <select>
+        <option value="admin">Admin (full access)</option>
+        <option value="manager">Manager</option>
+        <option value="staff">Staff (check-in only)</option>
+      </select>
+    </td>
+  </tr>
+</table>
+
+<!-- SECTION 6 -->
+<h2>Section 6: Notifications & Communications</h2>
+
+<h3>6.1 Email Notifications</h3>
+
+<label><strong>Transactional Emails (Recommended)</strong></label>
+<div class="checkbox-group">
+  <label><input type="checkbox" checked> Booking confirmation</label>
+  <label><input type="checkbox" checked> Payment receipt</label>
+  <label><input type="checkbox" checked> Booking reminder (24 hours before)</label>
+  <label><input type="checkbox"> Booking reminder (2 hours before)</label>
+  <label><input type="checkbox" checked> Check-in confirmation</label>
+  <label><input type="checkbox" checked> Session completed</label>
+  <label><input type="checkbox" checked> Cancellation confirmation</label>
+  <label><input type="checkbox" checked> Reschedule confirmation</label>
+  <label><input type="checkbox" checked> Session photos/videos ready</label>
+</div>
+
+<label><strong>Marketing Emails (Optional)</strong></label>
+<div class="checkbox-group">
+  <label><input type="checkbox"> Welcome email series</label>
+  <label><input type="checkbox"> Monthly newsletter</label>
+  <label><input type="checkbox"> Birthday / Gotcha day emails for pets</label>
+  <label><input type="checkbox"> Re-engagement (haven't booked in 30+ days)</label>
+  <label><input type="checkbox"> Promotional offers</label>
+</div>
+
+<h3>6.2 SMS/Text Notifications</h3>
+<p class="note">Note: Each text costs approximately $0.01</p>
+
+<div class="checkbox-group">
+  <label><input type="checkbox" checked> Booking confirmation</label>
+  <label><input type="checkbox" checked> Booking reminder (24 hours before)</label>
+  <label><input type="checkbox"> Booking reminder (2 hours before)</label>
+  <label><input type="checkbox"> Session photos ready</label>
+  <label><input type="checkbox"> Promotional messages (requires consent)</label>
+</div>
+
+<h3>6.3 Email Sender Information</h3>
+
+<label>From Name (what customers see)</label>
+<input type="text" name="email_from_name" placeholder="GoPAWZ Team">
+
+<label>Reply-To Email</label>
+<input type="email" name="email_reply_to" placeholder="hello@gopawz.com">
+
+<!-- SECTION 7 -->
+<h2>Section 7: Referral Program</h2>
+
+<label>Enable referral program?</label>
+<div class="radio-group">
+  <label><input type="radio" name="enable_referral" value="yes" checked> Yes</label>
+  <label><input type="radio" name="enable_referral" value="no"> No (skip this section)</label>
+</div>
+
+<h3>7.1 Referral Rewards</h3>
+
+<label><strong>What does the REFERRER (existing customer) get?</strong></label>
+<div class="radio-group">
+  <label><input type="radio" name="referrer_reward" value="credit"> $<input type="text" style="width: 50px; display: inline;" placeholder="20"> credit toward future booking</label>
+  <label><input type="radio" name="referrer_reward" value="percent"> <input type="text" style="width: 40px; display: inline;" placeholder="25">% off next booking</label>
+  <label><input type="radio" name="referrer_reward" value="free"> Free session after <input type="text" style="width: 30px; display: inline;" placeholder="5"> successful referrals</label>
+  <label><input type="radio" name="referrer_reward" value="other"> Other: <input type="text" style="width: 200px; display: inline;" placeholder=""></label>
+</div>
+
+<label><strong>What does the REFERRED (new customer) get?</strong></label>
+<div class="radio-group">
+  <label><input type="radio" name="referred_reward" value="dollar"> $<input type="text" style="width: 50px; display: inline;" placeholder="15"> off first booking</label>
+  <label><input type="radio" name="referred_reward" value="percent"> <input type="text" style="width: 40px; display: inline;" placeholder="20">% off first booking</label>
+  <label><input type="radio" name="referred_reward" value="upgrade"> Free upgrade (e.g., Express → Standard)</label>
+  <label><input type="radio" name="referred_reward" value="other"> Other: <input type="text" style="width: 200px; display: inline;" placeholder=""></label>
+</div>
+
+<h3>7.2 Referral Rules</h3>
+
+<label>When is a referral considered "completed"?</label>
+<select name="referral_complete_when">
+  <option value="signup">When new customer signs up</option>
+  <option value="books" selected>When new customer completes first booking</option>
+  <option value="session">When new customer completes first session</option>
+</select>
+
+<label>Maximum referral rewards per customer</label>
+<select name="max_referrals">
+  <option value="unlimited" selected>Unlimited</option>
+  <option value="5_month">5 per month</option>
+  <option value="10_month">10 per month</option>
+  <option value="10_total">10 total</option>
+</select>
+
+<!-- SECTION 8 -->
+<h2>Section 8: Website Content</h2>
+
+<h3>8.1 About Page</h3>
+
+<label class="required">Company Story (2-3 paragraphs)</label>
+<textarea name="company_story" rows="6" placeholder="Tell your story... How did GoPAWZ start? What's your mission? What makes you different?"></textarea>
+
+<label>Mission Statement</label>
+<textarea name="mission" rows="2" placeholder="e.g., 'To help every dog live their healthiest, happiest life through personalized fitness...'"></textarea>
+
+<h3>8.2 Team Members</h3>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Title</th>
+    <th>Bio (2-3 sentences)</th>
+    <th>Has Photo?</th>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Name"></td>
+    <td><input type="text" placeholder="Title"></td>
+    <td><input type="text" placeholder="Short bio..."></td>
+    <td><input type="checkbox"></td>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Name"></td>
+    <td><input type="text" placeholder="Title"></td>
+    <td><input type="text" placeholder="Short bio..."></td>
+    <td><input type="checkbox"></td>
+  </tr>
+</table>
+
+<h3>8.3 Customer Testimonials</h3>
+
+<div class="price-card" style="margin-top: 15px;">
+  <h4>Testimonial 1</h4>
+  <label>Customer Name</label>
+  <input type="text" placeholder="First name or 'Anonymous'">
+  <label>Dog's Name & Breed</label>
+  <input type="text" placeholder="e.g., Max, Golden Retriever">
+  <label>Quote</label>
+  <textarea placeholder="What they said about your service..."></textarea>
+  <label><input type="checkbox"> Photo available</label>
+</div>
+
+<div class="price-card" style="margin-top: 15px;">
+  <h4>Testimonial 2</h4>
+  <label>Customer Name</label>
+  <input type="text" placeholder="First name or 'Anonymous'">
+  <label>Dog's Name & Breed</label>
+  <input type="text" placeholder="e.g., Bella, French Bulldog">
+  <label>Quote</label>
+  <textarea placeholder="What they said about your service..."></textarea>
+  <label><input type="checkbox"> Photo available</label>
+</div>
+
+<div class="price-card" style="margin-top: 15px;">
+  <h4>Testimonial 3</h4>
+  <label>Customer Name</label>
+  <input type="text" placeholder="First name or 'Anonymous'">
+  <label>Dog's Name & Breed</label>
+  <input type="text" placeholder="e.g., Cooper, Labrador">
+  <label>Quote</label>
+  <textarea placeholder="What they said about your service..."></textarea>
+  <label><input type="checkbox"> Photo available</label>
+</div>
+
+<h3>8.4 Frequently Asked Questions</h3>
+
+<label>What should my dog bring to a session?</label>
+<textarea name="faq_1" placeholder="Your answer..."></textarea>
+
+<label>What if my dog doesn't like the treadmill?</label>
+<textarea name="faq_2" placeholder="Your answer..."></textarea>
+
+<label>How do I know if my dog is a good fit?</label>
+<textarea name="faq_3" placeholder="Your answer..."></textarea>
+
+<label>Is my dog too old/young for this?</label>
+<textarea name="faq_4" placeholder="Your answer..."></textarea>
+
+<label>What happens if it rains?</label>
+<textarea name="faq_5" placeholder="Your answer..."></textarea>
+
+<label>Can I stay and watch the session?</label>
+<textarea name="faq_6" placeholder="Your answer..."></textarea>
+
+<label>Additional FAQ (optional)</label>
+<input type="text" placeholder="Question..." style="margin-bottom: 5px;">
+<textarea placeholder="Answer..."></textarea>
+
+<h3>8.5 Social Media Links</h3>
+
+<label>Instagram</label>
+<input type="url" name="instagram" placeholder="https://instagram.com/gopawz">
+
+<label>Facebook</label>
+<input type="url" name="facebook" placeholder="https://facebook.com/gopawz">
+
+<label>TikTok</label>
+<input type="url" name="tiktok" placeholder="https://tiktok.com/@gopawz">
+
+<label>YouTube</label>
+<input type="url" name="youtube" placeholder="https://youtube.com/@gopawz">
+
+<label>Yelp</label>
+<input type="url" name="yelp" placeholder="https://yelp.com/biz/gopawz">
+
+<label>Google Business Profile</label>
+<input type="url" name="google_business" placeholder="Your Google Business URL">
+
+<!-- SECTION 9 -->
+<h2>Section 9: Legal & Compliance</h2>
+
+<h3>9.1 Liability Waiver</h3>
+
+<label>Do you have an existing liability waiver?</label>
+<div class="radio-group">
+  <label><input type="radio" name="has_waiver" value="yes"> Yes - I will provide a copy</label>
+  <label><input type="radio" name="has_waiver" value="no"> No - I need one created</label>
+</div>
+
+<label>Key points the waiver should cover:</label>
+<div class="checkbox-group">
+  <label><input type="checkbox" checked> Assumption of risk</label>
+  <label><input type="checkbox" checked> Photo/video release for marketing</label>
+  <label><input type="checkbox" checked> Emergency veterinary authorization</label>
+  <label><input type="checkbox" checked> Vaccination verification accuracy</label>
+  <label><input type="checkbox"> Other: <input type="text" style="width: 200px; display: inline;" placeholder=""></label>
+</div>
+
+<h3>9.2 Privacy Policy & Terms</h3>
+
+<label>Privacy Policy</label>
+<div class="radio-group">
+  <label><input type="radio" name="has_privacy" value="yes"> I have one - will provide</label>
+  <label><input type="radio" name="has_privacy" value="no"> I need one created</label>
+</div>
+
+<label>Terms of Service</label>
+<div class="radio-group">
+  <label><input type="radio" name="has_terms" value="yes"> I have them - will provide</label>
+  <label><input type="radio" name="has_terms" value="no"> I need them created</label>
+</div>
+
+<h3>9.3 Photo/Video Consent for Marketing</h3>
+
+<label>Can you use session photos/videos for marketing?</label>
+<div class="radio-group">
+  <label><input type="radio" name="photo_consent" value="ask"> Ask permission each time</label>
+  <label><input type="radio" name="photo_consent" value="waiver"> Include in signup waiver (opt-out available)</label>
+  <label><input type="radio" name="photo_consent" value="never"> Never use customer photos for marketing</label>
+</div>
+
+<!-- SECTION 10 -->
+<h2>Section 10: Branding & Design</h2>
+
+<h3>10.1 Current Branding</h3>
+<p>The app currently uses these colors:</p>
+<div style="display: flex; gap: 20px; margin: 15px 0;">
+  <div style="background: #06B6D4; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+    <strong>Primary</strong><br>Aqua #06B6D4
+  </div>
+  <div style="background: #FF6B35; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+    <strong>Secondary</strong><br>Orange #FF6B35
+  </div>
+</div>
+
+<label>Are you happy with these colors?</label>
+<div class="radio-group">
+  <label><input type="radio" name="keep_colors" value="yes" checked> Yes, keep them</label>
+  <label><input type="radio" name="keep_colors" value="no"> No, I want changes</label>
+</div>
+
+<label>If no, what colors do you prefer?</label>
+<input type="text" name="new_colors" placeholder="e.g., Navy blue and gold">
+
+<h3>10.2 Logo</h3>
+
+<div class="radio-group">
+  <label><input type="radio" name="logo" value="have"> I have a logo (will provide PNG with transparent background)</label>
+  <label><input type="radio" name="logo" value="need"> I need a logo created</label>
+  <label><input type="radio" name="logo" value="text"> Use text-only logo for now</label>
+</div>
+
+<h3>10.3 Brand Voice</h3>
+
+<label>How should the app/website "sound"?</label>
+<div class="radio-group">
+  <label><input type="radio" name="voice" value="professional"> Professional & Trustworthy</label>
+  <label><input type="radio" name="voice" value="fun"> Fun & Playful</label>
+  <label><input type="radio" name="voice" value="warm"> Warm & Caring</label>
+  <label><input type="radio" name="voice" value="modern"> Modern & Sleek</label>
+  <label><input type="radio" name="voice" value="mix"> Mix: <input type="text" style="width: 200px; display: inline;" placeholder="e.g., Fun but professional"></label>
+</div>
+
+<!-- SECTION 11 -->
+<h2>Section 11: Payment & Billing</h2>
+
+<h3>11.1 Stripe Account</h3>
+
+<div class="radio-group">
+  <label><input type="radio" name="has_stripe" value="yes"> I have a Stripe account</label>
+  <label><input type="radio" name="has_stripe" value="no"> I need help setting up Stripe</label>
+</div>
+
+<label>Stripe account email (if you have one)</label>
+<input type="email" name="stripe_email" placeholder="email@example.com">
+
+<h3>11.2 Payment Methods</h3>
+
+<div class="checkbox-group">
+  <label><input type="checkbox" checked> Credit/Debit Cards (Visa, Mastercard, Amex, Discover)</label>
+  <label><input type="checkbox" checked> Apple Pay</label>
+  <label><input type="checkbox" checked> Google Pay</label>
+  <label><input type="checkbox"> Bank transfers (ACH) - lower fees, slower processing</label>
+</div>
+
+<h3>11.3 Tipping</h3>
+
+<label>Enable tipping after session completion?</label>
+<div class="radio-group">
+  <label><input type="radio" name="tipping" value="yes"> Yes - suggested amounts: <input type="text" style="width: 40px; display: inline;" placeholder="15">%, <input type="text" style="width: 40px; display: inline;" placeholder="20">%, <input type="text" style="width: 40px; display: inline;" placeholder="25">%</label>
+  <label><input type="radio" name="tipping" value="no"> No tipping</label>
+</div>
+
+<!-- SECTION 12 -->
+<h2>Section 12: Future Features (Priority Ranking)</h2>
+<p class="note">Rank features you want after launch: 1 = highest priority, leave blank if not interested</p>
+
+<table>
+  <tr>
+    <th style="width: 80px;">Priority</th>
+    <th>Feature</th>
+  </tr>
+  <tr>
+    <td><input type="number" min="1" max="10" style="width: 60px;"></td>
+    <td>Membership/subscription plans</td>
+  </tr>
+  <tr>
+    <td><input type="number" min="1" max="10" style="width: 60px;"></td>
+    <td>Gift cards</td>
+  </tr>
+  <tr>
+    <td><input type="number" min="1" max="10" style="width: 60px;"></td>
+    <td>Waitlist for fully booked days</td>
+  </tr>
+  <tr>
+    <td><input type="number" min="1" max="10" style="width: 60px;"></td>
+    <td>Multi-location support</td>
+  </tr>
+  <tr>
+    <td><input type="number" min="1" max="10" style="width: 60px;"></td>
+    <td>Automated progress reports</td>
+  </tr>
+  <tr>
+    <td><input type="number" min="1" max="10" style="width: 60px;"></td>
+    <td>Dog fitness tracking over time</td>
+  </tr>
+  <tr>
+    <td><input type="number" min="1" max="10" style="width: 60px;"></td>
+    <td>Group sessions/classes</td>
+  </tr>
+  <tr>
+    <td><input type="number" min="1" max="10" style="width: 60px;"></td>
+    <td>Mobile app (iOS/Android)</td>
+  </tr>
+  <tr>
+    <td><input type="number" min="1" max="10" style="width: 60px;"></td>
+    <td>Live session video streaming</td>
+  </tr>
+</table>
+
+<label>Other features you'd like:</label>
+<textarea name="other_features" placeholder="Any other features you'd like to see..."></textarea>
+
+<!-- SECTION 13 -->
+<h2>Section 13: Launch Preparation</h2>
+
+<h3>13.1 Beta Testers</h3>
+<p class="note">Provide 2-3 real customers willing to test before public launch:</p>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Phone</th>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Name"></td>
+    <td><input type="email" placeholder="email@example.com"></td>
+    <td><input type="tel" placeholder="(555) 555-5555"></td>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Name"></td>
+    <td><input type="email" placeholder="email@example.com"></td>
+    <td><input type="tel" placeholder="(555) 555-5555"></td>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Name"></td>
+    <td><input type="email" placeholder="email@example.com"></td>
+    <td><input type="tel" placeholder="(555) 555-5555"></td>
+  </tr>
+</table>
+
+<h3>13.2 Launch Timeline</h3>
+
+<label>Preferred soft launch date</label>
+<input type="date" name="soft_launch">
+
+<label>Preferred public launch date</label>
+<input type="date" name="public_launch">
+
+<label>Any events or deadlines to consider?</label>
+<textarea name="deadlines" placeholder="e.g., Want to launch before summer, have a pet expo coming up..."></textarea>
+
+<h3>13.3 Staff Training</h3>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Training Type</th>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Name"></td>
+    <td><input type="email" placeholder="email@example.com"></td>
+    <td>
+      <select>
+        <option value="full">Full training</option>
+        <option value="checkin">Check-in only</option>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td><input type="text" placeholder="Name"></td>
+    <td><input type="email" placeholder="email@example.com"></td>
+    <td>
+      <select>
+        <option value="full">Full training</option>
+        <option value="checkin">Check-in only</option>
+      </select>
+    </td>
+  </tr>
+</table>
+
+<!-- ADDITIONAL NOTES -->
+<h2>Additional Notes</h2>
+
+<label>Anything else we should know?</label>
+<textarea name="additional_notes" rows="6" placeholder="Any other information, special requests, concerns, or questions..."></textarea>
+
+<!-- SUBMIT -->
+<div class="submit-section">
+  <h2>Thank You!</h2>
+  <p>Please save this form and return it to your developer.<br>
+  If you have questions about any section, just add a note.</p>
+  <p style="margin-top: 20px; font-size: 14px;">
+    <strong>To save as PDF:</strong> Press Ctrl+P (or Cmd+P on Mac) and select "Save as PDF"
+  </p>
+</div>
+
+<script>
+  // Auto-save form data to localStorage
+  const form = document.querySelectorAll('input, textarea, select');
+
+  // Load saved data
+  form.forEach(field => {
+    const saved = localStorage.getItem('gopawz_' + (field.name || field.id));
+    if (saved) {
+      if (field.type === 'checkbox' || field.type === 'radio') {
+        field.checked = saved === 'true';
+      } else {
+        field.value = saved;
+      }
+    }
+  });
+
+  // Save on change
+  form.forEach(field => {
+    field.addEventListener('change', () => {
+      const value = field.type === 'checkbox' || field.type === 'radio'
+        ? field.checked
+        : field.value;
+      localStorage.setItem('gopawz_' + (field.name || field.id), value);
+    });
+  });
+</script>
+
+</body>
+</html>
