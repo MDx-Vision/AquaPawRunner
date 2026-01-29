@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
+import passport from "passport";
 import { storage } from "./storage";
 import { stripeService } from "./stripeService";
 import { getStripePublishableKey } from "./stripeClient";
@@ -19,8 +20,11 @@ import {
   insertReferralSchema,
   insertNotificationLogSchema,
   insertFeedbackSchema,
+  registerUserSchema,
+  loginUserSchema,
 } from "@shared/schema";
 import { fromError } from "zod-validation-error";
+import { requireAuth, hashPassword } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve uploaded files
@@ -28,6 +32,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.setHeader("Access-Control-Allow-Origin", "*");
     next();
   }, express.static(path.join(process.cwd(), "uploads")));
+
+  // ============ AUTH ROUTES ============
+
+  // Get current authenticated user
+  app.get("/api/auth/me", (req, res) => {
+    if (req.isAuthenticated()) {
+      res.json(req.user);
+    } else {
+      res.json(null);
+    }
+  });
+
+  // Register new user
+  app.post("/api/auth/register", async (req, res, next) => {
+    try {
+      const validatedData = registerUserSchema.parse(req.body);
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(400).json({ error: "An account with this email already exists" });
+      }
+
+      // Hash password and create user
+      const passwordHash = await hashPassword(validatedData.password);
+      const user = await storage.createUserWithPassword({
+        email: validatedData.email,
+        name: validatedData.name,
+        phone: validatedData.phone || null,
+        passwordHash,
+      });
+
+      // Auto-login after registration
+      req.login(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+        res.json(user);
+      });
+    } catch (error: any) {
+      res.status(400).json({ error: fromError(error).toString() });
+    }
+  });
+
+  // Login
+  app.post("/api/auth/login", (req, res, next) => {
+    try {
+      loginUserSchema.parse(req.body);
+    } catch (error: any) {
+      return res.status(400).json({ error: fromError(error).toString() });
+    }
+
+    passport.authenticate("local", (err: any, user: Express.User | false, info: { message: string } | undefined) => {
+      if (err) {
+        return next(err);
+      }
+      if (!user) {
+        return res.status(401).json({ error: info?.message || "Invalid credentials" });
+      }
+      req.login(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+        res.json(user);
+      });
+    })(req, res, next);
+  });
+
+  // Logout
+  app.post("/api/auth/logout", (req, res, next) => {
+    req.logout((err) => {
+      if (err) {
+        return next(err);
+      }
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+
+  // ============ END AUTH ROUTES ============
 
   // Users
   app.post("/api/users", async (req, res) => {
@@ -40,7 +123,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/users/:id", async (req, res) => {
+  app.get("/api/users/:id", requireAuth, async (req, res) => {
+    // Ownership check - users can only access their own data
+    if (req.user?.id !== req.params.id) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const user = await storage.getUser(req.params.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -96,7 +183,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(pet);
   });
 
-  app.get("/api/users/:userId/pets", async (req, res) => {
+  app.get("/api/users/:userId/pets", requireAuth, async (req, res) => {
+    // Ownership check
+    if (req.user?.id !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const pets = await storage.getPetsByUser(req.params.userId);
     res.json(pets);
   });
@@ -156,9 +247,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bookings
-  app.post("/api/bookings", async (req, res) => {
+  app.post("/api/bookings", requireAuth, async (req, res) => {
     try {
       const validatedData = insertBookingSchema.parse(req.body);
+      // Ensure the booking is for the authenticated user
+      if (validatedData.userId !== req.user?.id) {
+        return res.status(403).json({ error: "Cannot create booking for another user" });
+      }
       const booking = await storage.createBooking(validatedData);
       res.json(booking);
     } catch (error: any) {
@@ -174,12 +269,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(booking);
   });
 
-  app.get("/api/users/:userId/bookings", async (req, res) => {
+  app.get("/api/users/:userId/bookings", requireAuth, async (req, res) => {
+    // Ownership check
+    if (req.user?.id !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const bookings = await storage.getBookingsByUser(req.params.userId);
     res.json(bookings);
   });
 
-  app.get("/api/users/:userId/bookings/upcoming", async (req, res) => {
+  app.get("/api/users/:userId/bookings/upcoming", requireAuth, async (req, res) => {
+    // Ownership check
+    if (req.user?.id !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const bookings = await storage.getUpcomingBookings(req.params.userId);
     res.json(bookings);
   });
@@ -196,11 +299,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/bookings/:id/cancel", async (req, res) => {
+  app.post("/api/bookings/:id/cancel", requireAuth, async (req, res) => {
     try {
       const booking = await storage.getBooking(req.params.id);
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
+      }
+
+      // Ownership check
+      if (booking.userId !== req.user?.id) {
+        return res.status(403).json({ error: "Access denied" });
       }
 
       // Block cancellation for terminal states
@@ -353,10 +461,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/bookings/:id/reschedule", async (req, res) => {
+  app.post("/api/bookings/:id/reschedule", requireAuth, async (req, res) => {
     try {
       const { newDate, newTimeSlot } = req.body;
-      
+
       if (!newDate || !newTimeSlot) {
         return res.status(400).json({ error: "New date and time slot are required" });
       }
@@ -364,6 +472,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const booking = await storage.getBooking(req.params.id);
       if (!booking) {
         return res.status(404).json({ error: "Booking not found" });
+      }
+
+      // Ownership check
+      if (booking.userId !== req.user?.id) {
+        return res.status(403).json({ error: "Access denied" });
       }
 
       // Block rescheduling for terminal states
@@ -654,7 +767,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(payments);
   });
 
-  app.get("/api/users/:userId/payments", async (req, res) => {
+  app.get("/api/users/:userId/payments", requireAuth, async (req, res) => {
+    // Ownership check
+    if (req.user?.id !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const payments = await storage.getPaymentsByUser(req.params.userId);
     res.json(payments);
   });
@@ -695,7 +812,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(sessions);
   });
 
-  app.get("/api/users/:userId/sessions", async (req, res) => {
+  app.get("/api/users/:userId/sessions", requireAuth, async (req, res) => {
+    // Ownership check
+    if (req.user?.id !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const sessions = await storage.getSessionsByUser(req.params.userId);
     res.json(sessions);
   });
@@ -785,7 +906,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/users/:userId/packages", async (req, res) => {
+  app.get("/api/users/:userId/packages", requireAuth, async (req, res) => {
+    // Ownership check
+    if (req.user?.id !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const packages = await storage.getPackagesByUser(req.params.userId);
     res.json(packages);
   });
@@ -813,7 +938,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/users/:referrerId/referrals", async (req, res) => {
+  app.get("/api/users/:referrerId/referrals", requireAuth, async (req, res) => {
+    // Ownership check
+    if (req.user?.id !== req.params.referrerId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const referrals = await storage.getReferralsByReferrer(req.params.referrerId);
     res.json(referrals);
   });
@@ -887,7 +1016,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/users/:userId/notifications", async (req, res) => {
+  app.get("/api/users/:userId/notifications", requireAuth, async (req, res) => {
+    // Ownership check
+    if (req.user?.id !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const notifications = await storage.getNotificationsByUser(req.params.userId);
     res.json(notifications);
   });
@@ -903,7 +1036,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/users/:userId/feedback", async (req, res) => {
+  app.get("/api/users/:userId/feedback", requireAuth, async (req, res) => {
+    // Ownership check
+    if (req.user?.id !== req.params.userId) {
+      return res.status(403).json({ error: "Access denied" });
+    }
     const feedbacks = await storage.getFeedbackByUser(req.params.userId);
     res.json(feedbacks);
   });
@@ -919,14 +1056,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ publishableKey });
   });
 
-  app.post("/api/stripe/create-payment-intent", async (req, res) => {
+  app.post("/api/stripe/create-payment-intent", requireAuth, async (req, res) => {
     try {
-      // TODO: In production, get userId from authenticated session (req.user.id)
-      // For prototype: accepting userId from request body
-      const { bookingId, userId } = req.body;
-      
-      if (!bookingId || !userId) {
-        return res.status(400).json({ error: "Missing required fields" });
+      const { bookingId } = req.body;
+      const userId = req.user!.id;
+
+      if (!bookingId) {
+        return res.status(400).json({ error: "Missing bookingId" });
       }
 
       const booking = await storage.getBooking(bookingId);

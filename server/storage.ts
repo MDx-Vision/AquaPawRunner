@@ -54,14 +54,20 @@ function generateQRCode(): string {
   return randomBytes(16).toString('hex');
 }
 
+// Type for user with password hash (internal use only)
+type UserWithPassword = User & { passwordHash: string | null };
+
 export interface IStorage {
   // Users
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByEmailWithPassword(email: string): Promise<UserWithPassword | undefined>;
   getUserByReferralCode(code: string): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
+  createUserWithPassword(user: InsertUser & { passwordHash: string }): Promise<User>;
   updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined>;
+  updateUserPassword(id: string, passwordHash: string): Promise<User | undefined>;
   generateReferralCodeForUser(userId: string): Promise<User | undefined>;
   
   // Pets
@@ -149,6 +155,11 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserByEmailWithPassword(email: string): Promise<UserWithPassword | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
   async getUserByReferralCode(code: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.referralCode, code));
     return user || undefined;
@@ -164,8 +175,18 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async createUserWithPassword(insertUser: InsertUser & { passwordHash: string }): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
   async updateUser(id: string, user: Partial<InsertUser>): Promise<User | undefined> {
     const [updated] = await db.update(users).set(user).where(eq(users.id, id)).returning();
+    return updated || undefined;
+  }
+
+  async updateUserPassword(id: string, passwordHash: string): Promise<User | undefined> {
+    const [updated] = await db.update(users).set({ passwordHash }).where(eq(users.id, id)).returning();
     return updated || undefined;
   }
 

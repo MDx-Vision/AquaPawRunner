@@ -3,10 +3,24 @@ import { LayoutDashboard, Calendar, Dog, Settings, LogOut, Menu, X, Syringe, Gif
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export function PortalLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const [, setLocation] = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Logged out successfully");
+      setLocation("/");
+    } catch (error) {
+      toast.error("Failed to log out");
+    }
+  };
 
   const navigation = [
     { name: "Dashboard", href: "/portal", icon: LayoutDashboard },
@@ -48,7 +62,7 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
       </div>
       <div className="p-4 border-t">
         <button
-          onClick={() => window.location.href = "/"}
+          onClick={handleLogout}
           className="w-full flex items-center justify-start gap-3 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <LogOut className="w-5 h-5" />

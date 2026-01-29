@@ -1,16 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import { PortalLayout } from "./layout";
 import { ReferralDashboard } from "@/components/referral-dashboard";
 import { Loader2 } from "lucide-react";
-import { getUserByEmail } from "@/lib/api";
-
-const DEMO_USER_EMAIL = "sarah@example.com";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ReferralsPage() {
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["user", DEMO_USER_EMAIL],
-    queryFn: () => getUserByEmail(DEMO_USER_EMAIL),
-  });
+  const { user, isLoading } = useAuth();
 
   if (isLoading || !user) {
     return (

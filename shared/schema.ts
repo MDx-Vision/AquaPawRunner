@@ -9,6 +9,7 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   phone: text("phone"),
+  passwordHash: text("password_hash"),
   referralCode: text("referral_code"),
   referredBy: varchar("referred_by"),
   stripeCustomerId: text("stripe_customer_id"),
@@ -18,9 +19,25 @@ export const users = pgTable("users", {
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
+  passwordHash: true,
 });
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// Auth schemas
+export const registerUserSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  name: z.string().min(1, "Name is required"),
+  phone: z.string().optional(),
+});
+export type RegisterUser = z.infer<typeof registerUserSchema>;
+
+export const loginUserSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+export type LoginUser = z.infer<typeof loginUserSchema>;
 
 // Pets table
 export const pets = pgTable("pets", {

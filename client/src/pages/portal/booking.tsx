@@ -8,6 +8,7 @@ import { useState } from "react";
 import { CheckCircle2, Clock, Dog, CreditCard, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { useAuth } from "@/contexts/AuthContext";
 
 const services = [
   { id: "express", name: "Express Run", duration: "20 min", price: "$45", desc: "Perfect for a quick energy burn." },
@@ -26,11 +27,12 @@ export default function BookingPage() {
   const [selectedTime, setSelectedTime] = useState("");
   const { toast } = useToast();
   const [_, setLocation] = useLocation();
+  const { user } = useAuth();
 
   const handleBooking = () => {
     toast({
       title: "Booking Confirmed!",
-      description: "We've sent a confirmation email to sarah@example.com",
+      description: `We've sent a confirmation email to ${user?.email || 'your email'}`,
     });
     setTimeout(() => setLocation("/portal"), 2000);
   };

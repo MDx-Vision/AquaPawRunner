@@ -5,19 +5,14 @@ import { Calendar as CalendarIcon, Clock, MapPin, Activity, Trophy } from "lucid
 import { Link } from "wouter";
 import dogAvatar from "@assets/generated_images/golden_retriever_avatar.png";
 import { useQuery } from "@tanstack/react-query";
-import { getUserByEmail, getPetsByUser, getUpcomingBookings, getSessionsByUser, getPackagesByUser } from "@/lib/api";
+import { getPetsByUser, getUpcomingBookings, getSessionsByUser, getPackagesByUser } from "@/lib/api";
 import { format } from "date-fns";
 import { QRCheckIn } from "@/components/qr-checkin";
 import { BookingActions } from "@/components/booking-actions";
-
-// For demo purposes - in production this would come from auth
-const DEMO_USER_EMAIL = "sarah@example.com";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function PortalDashboard() {
-  const { data: user } = useQuery({
-    queryKey: ["user", DEMO_USER_EMAIL],
-    queryFn: () => getUserByEmail(DEMO_USER_EMAIL),
-  });
+  const { user } = useAuth();
 
   const { data: pets = [] } = useQuery({
     queryKey: ["pets", user?.id],

@@ -1,16 +1,22 @@
 import { db } from "./db";
 import { users, pets, bookings, packages, sessions } from "@shared/schema";
+import bcrypt from "bcrypt";
 
 async function seed() {
   console.log("Seeding database...");
 
-  // Create a demo user
+  // Hash the demo password
+  const demoPassword = "password123";
+  const passwordHash = await bcrypt.hash(demoPassword, 12);
+
+  // Create a demo user with password
   const [user] = await db
     .insert(users)
     .values({
       email: "sarah@example.com",
       name: "Sarah Johnson",
       phone: "(555) 123-4567",
+      passwordHash,
     })
     .returning();
 
@@ -150,9 +156,12 @@ async function seed() {
 
   console.log("Created session package");
   console.log("✅ Seeding complete!");
-  console.log("\nDemo user credentials:");
+  console.log("\n========================================");
+  console.log("Demo user credentials:");
   console.log("Email:", user.email);
+  console.log("Password:", demoPassword);
   console.log("User ID:", user.id);
+  console.log("========================================\n");
 
   process.exit(0);
 }

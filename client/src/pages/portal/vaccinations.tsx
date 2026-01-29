@@ -17,21 +17,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { PlusCircle, FileText, AlertCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { getUserByEmail, getPetsByUser, getVaccinationsByPet, createVaccination, deleteVaccination } from "@/lib/api";
+import { getPetsByUser, getVaccinationsByPet, createVaccination, deleteVaccination } from "@/lib/api";
 import type { Pet, Vaccination } from "@shared/schema";
-
-// For demo purposes - in production this would come from auth
-const DEMO_USER_EMAIL = "sarah@example.com";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Vaccinations() {
+  const { user } = useAuth();
   const [selectedPetId, setSelectedPetId] = useState<string>("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const queryClient = useQueryClient();
-
-  const { data: user } = useQuery({
-    queryKey: ["user", DEMO_USER_EMAIL],
-    queryFn: () => getUserByEmail(DEMO_USER_EMAIL),
-  });
 
   const petsQuery = useQuery({
     queryKey: ["pets", user?.id],

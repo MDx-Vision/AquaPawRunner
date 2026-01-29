@@ -341,7 +341,7 @@ export default function Home() {
             {[
               {
                 q: "Is the slatmill safe for my dog?",
-                a: "Absolutely! Our non-motorized slatmills allow dogs to run at their own pace, making it much safer than motorized treadmills. We also have trained staff supervising every session."
+                a: "Absolutely! Our non-motorized slatmills allow dogs to run at their own pace, making it much safer than motorized alternatives. We also have trained staff supervising every session."
               },
               {
                 q: "What vaccinations does my dog need?",
