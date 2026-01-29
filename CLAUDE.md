@@ -156,6 +156,19 @@ Fun & Playful
 - TikTok: https://tiktok.com/gopawzny
 - YouTube: https://youtube.com/@gopawz
 
+## Legal Documents
+
+Updated legal documents with correct entity name (Verdant Imperium LLC), all vaccination requirements, emergency vet authorization, and detailed policies.
+
+| Document | Preview Link | Source |
+|----------|--------------|--------|
+| **Gap Analysis Report** | [View](https://raw.githack.com/MDx-Vision/AquaPawRunner/main/legal/gap-analysis-report.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/gap-analysis-report.html) |
+| **Liability Waiver** | [View](https://raw.githack.com/MDx-Vision/AquaPawRunner/main/legal/liability-waiver.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/liability-waiver.html) |
+| **Privacy Policy** | [View](https://raw.githack.com/MDx-Vision/AquaPawRunner/main/legal/privacy-policy.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/privacy-policy.html) |
+| **Terms of Service** | [View](https://raw.githack.com/MDx-Vision/AquaPawRunner/main/legal/terms-of-service.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/terms-of-service.html) |
+
+**Local paths:** `legal/` and `client/public/legal/`
+
 ## Authentication
 
 ### Login Methods (Planned)
