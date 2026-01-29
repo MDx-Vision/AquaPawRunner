@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Thermometer, ShieldCheck, Clock, Dog, Trophy, Heart, Phone, Check, Star, MapPin, Camera, Zap, Users } from "lucide-react";
 import heroBg from "@assets/generated_images/3d_paw_print_background.png";
 import dogSilhouette from "@assets/generated_images/dog_running_on_slatmill_silhouette.png";
+import logo from "@assets/gopawz_logo_horizontal.png";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -396,9 +397,7 @@ export default function Home() {
         <div className="container px-4 md:px-6">
           <div className="grid md:grid-cols-4 gap-12">
             <div className="col-span-2 space-y-4">
-              <span className="font-display text-3xl font-black tracking-tighter text-primary">
-                Go<span className="text-secondary">PAWZ</span>
-              </span>
+              <img src={logo} alt="GoPAWZ" className="h-12 w-auto" />
               <p className="text-white/60 max-w-sm">
                 Orange County's premier mobile dog gym. We're dedicated to keeping your furry friends happy, healthy, and fit.
               </p>

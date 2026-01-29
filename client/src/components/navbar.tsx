@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, Phone } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import logo from "@assets/gopawz_logo_horizontal.png";
 
 export function Navbar() {
   return (
@@ -9,9 +10,7 @@ export function Navbar() {
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/">
           <a className="flex items-center gap-2">
-            <span className="font-display text-2xl font-black tracking-tighter text-primary md:text-3xl">
-              Go<span className="text-secondary">PAWZ</span>
-            </span>
+            <img src={logo} alt="GoPAWZ" className="h-10 md:h-12 w-auto" />
           </a>
         </Link>
         
