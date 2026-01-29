@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Thermometer, ShieldCheck, Clock, Dog, Trophy, Heart, Phone, Check, Star, MapPin, Camera, Zap, Users } from "lucide-react";
 import heroBg from "@assets/generated_images/3d_paw_print_background.png";
-import dogSilhouette from "@assets/generated_images/dog_running_on_slatmill_silhouette.png";
+import dogSilhouette from "/logo-elements/icon-paw-dog.png";
 import logo from "@assets/gopawz_logo_horizontal.png";
 import { Link } from "wouter";
 
@@ -69,10 +69,10 @@ export default function Home() {
              {/* Dog Silhouette Image */}
              <div className="relative z-10 transform hover:scale-105 transition-transform duration-500">
                 <div className="absolute -inset-4 bg-primary/20 blur-3xl rounded-full animate-pulse" />
-                <img 
-                  src={dogSilhouette} 
-                  alt="Dynamic Dog on Slatmill" 
-                  className="relative w-full max-w-[600px] drop-shadow-2xl filter contrast-110"
+                <img
+                  src={dogSilhouette}
+                  alt="Dynamic Dog on Slatmill"
+                  className="relative w-full max-w-[450px] drop-shadow-2xl"
                 />
              </div>
           </div>
