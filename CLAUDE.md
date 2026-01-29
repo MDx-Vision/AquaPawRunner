@@ -162,10 +162,10 @@ Updated legal documents with correct entity name (Verdant Imperium LLC), all vac
 
 | Document | Preview Link | Source |
 |----------|--------------|--------|
-| **Gap Analysis Report** | [View](https://mdx-vision.github.io/AquaPawRunner/legal/gap-analysis-report.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/gap-analysis-report.html) |
-| **Liability Waiver** | [View](https://mdx-vision.github.io/AquaPawRunner/legal/liability-waiver.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/liability-waiver.html) |
-| **Privacy Policy** | [View](https://mdx-vision.github.io/AquaPawRunner/legal/privacy-policy.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/privacy-policy.html) |
-| **Terms of Service** | [View](https://mdx-vision.github.io/AquaPawRunner/legal/terms-of-service.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/terms-of-service.html) |
+| **Gap Analysis Report** | [View](https://raw.githack.com/MDx-Vision/AquaPawRunner/main/legal/gap-analysis-report.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/gap-analysis-report.html) |
+| **Liability Waiver** | [View](https://raw.githack.com/MDx-Vision/AquaPawRunner/main/legal/liability-waiver.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/liability-waiver.html) |
+| **Privacy Policy** | [View](https://raw.githack.com/MDx-Vision/AquaPawRunner/main/legal/privacy-policy.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/privacy-policy.html) |
+| **Terms of Service** | [View](https://raw.githack.com/MDx-Vision/AquaPawRunner/main/legal/terms-of-service.html) | [GitHub](https://github.com/MDx-Vision/AquaPawRunner/blob/main/legal/terms-of-service.html) |
 
 **Local paths:** `legal/` and `client/public/legal/`
 
