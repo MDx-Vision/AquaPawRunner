@@ -25,33 +25,8 @@ export default function Services() {
       {/* Pricing Cards */}
       <section className="py-20 bg-background">
         <div className="container px-4 md:px-6">
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Express */}
-            <Card className="border-2 border-border hover:border-primary/50 transition-all">
-              <CardContent className="p-8 flex flex-col h-full">
-                <div className="mb-6">
-                  <h3 className="font-display text-2xl font-bold">Express Run</h3>
-                  <div className="mt-2 flex items-baseline text-foreground">
-                    <span className="text-4xl font-black tracking-tight">$45</span>
-                    <span className="ml-1 text-muted-foreground">/session</span>
-                  </div>
-                  <p className="mt-4 text-muted-foreground">Great for a quick energy burn or introduction to the slatmill.</p>
-                </div>
-                <ul className="space-y-3 mb-8 flex-1">
-                  {['20 Minute Session', 'Warm-up & Cool-down', 'Treats & Water', 'Performance Report'].map((feature) => (
-                    <li key={feature} className="flex items-center gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-secondary" />
-                      <span className="text-sm font-medium">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/portal/book">
-                  <Button className="w-full font-bold" variant="outline">Book Express</Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Standard */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Standard Session - Slatmill */}
             <Card className="border-2 border-secondary relative transform md:-translate-y-4 shadow-xl bg-white">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-secondary text-white px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wide">
                 Most Popular
@@ -59,14 +34,15 @@ export default function Services() {
               <CardContent className="p-8 flex flex-col h-full">
                 <div className="mb-6">
                   <h3 className="font-display text-2xl font-bold text-primary">Standard Session</h3>
+                  <p className="text-sm text-muted-foreground">Mobile Slatmill Run</p>
                   <div className="mt-2 flex items-baseline text-foreground">
-                    <span className="text-4xl font-black tracking-tight">$60</span>
+                    <span className="text-4xl font-black tracking-tight">$45</span>
                     <span className="ml-1 text-muted-foreground">/session</span>
                   </div>
-                  <p className="mt-4 text-muted-foreground">The perfect balance of endurance and cardio for active dogs.</p>
+                  <p className="mt-4 text-muted-foreground">Perfect for dogs who need structured exercise, weight management, endurance training, or a healthy outlet for their energy.</p>
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
-                  {['30 Minute Session', 'Custom Pace Setting', 'Interval Training', 'Post-Run Massage', 'Photo & Video Updates'].map((feature) => (
+                  {['30 Minute Session', 'Climate Controlled Van', 'Supervised & Tailored to Fitness Level', 'Safe & Effective Workout', 'Photo Updates Included'].map((feature) => (
                     <li key={feature} className="flex items-center gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary" />
                       <span className="text-sm font-medium">{feature}</span>
@@ -79,19 +55,20 @@ export default function Services() {
               </CardContent>
             </Card>
 
-            {/* Pro */}
+            {/* Pro Session - Fly Chase */}
             <Card className="border-2 border-border hover:border-primary/50 transition-all">
               <CardContent className="p-8 flex flex-col h-full">
                 <div className="mb-6">
-                  <h3 className="font-display text-2xl font-bold">Pro Athlete</h3>
+                  <h3 className="font-display text-2xl font-bold">Pro Session</h3>
+                  <p className="text-sm text-muted-foreground">Fly Chase Course</p>
                   <div className="mt-2 flex items-baseline text-foreground">
-                    <span className="text-4xl font-black tracking-tight">$80</span>
+                    <span className="text-4xl font-black tracking-tight">$35</span>
                     <span className="ml-1 text-muted-foreground">/session</span>
                   </div>
-                  <p className="mt-4 text-muted-foreground">Intense conditioning for high-energy working breeds.</p>
+                  <p className="mt-4 text-muted-foreground">Built for dogs who crave excitement, speed, and mentally stimulating play. Our lure-chase system reaches speeds up to 36 mph!</p>
                 </div>
                 <ul className="space-y-3 mb-8 flex-1">
-                  {['45 Minute Session', 'Incline Training', 'Resistance Work', 'Muscle Building Focus', 'Detailed Health Metrics'].map((feature) => (
+                  {['30 Minute Session', 'Course Lengths up to 750 ft', 'Outdoor Speed Training', 'Mental Stimulation', 'Perfect for High-Energy Dogs'].map((feature) => (
                     <li key={feature} className="flex items-center gap-3">
                       <CheckCircle2 className="w-5 h-5 text-secondary" />
                       <span className="text-sm font-medium">{feature}</span>
@@ -101,6 +78,32 @@ export default function Services() {
                 <Link href="/portal/book">
                   <Button className="w-full font-bold" variant="outline">Book Pro</Button>
                 </Link>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional Pricing Info */}
+          <div className="mt-12 max-w-4xl mx-auto">
+            <Card className="border bg-muted/30">
+              <CardContent className="p-8">
+                <h3 className="font-display text-xl font-bold mb-4 text-center">Additional Options</h3>
+                <div className="grid md:grid-cols-2 gap-6 text-center">
+                  <div>
+                    <p className="font-bold text-primary">5-Session Package</p>
+                    <p className="text-2xl font-black">$200</p>
+                    <p className="text-sm text-muted-foreground">10% savings • 30-day expiration</p>
+                  </div>
+                  <div>
+                    <p className="font-bold text-primary">Multi-Dog Discount</p>
+                    <p className="text-2xl font-black">15% Off</p>
+                    <p className="text-sm text-muted-foreground">Additional dogs same session</p>
+                  </div>
+                </div>
+                <div className="mt-6 pt-6 border-t text-center">
+                  <p className="text-muted-foreground">
+                    <strong>Puppy, Senior & Special Needs Sessions:</strong> $45 | <strong>First-Time Customers:</strong> 15% off first session
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>

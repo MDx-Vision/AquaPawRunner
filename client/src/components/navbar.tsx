@@ -25,7 +25,7 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground">
             <Phone className="h-4 w-4" />
-            (555) 123-4567
+            (845) 873-1034
           </Button>
           <Link href="/portal">
             <Button className="bg-secondary hover:bg-secondary/90 text-white font-bold shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">

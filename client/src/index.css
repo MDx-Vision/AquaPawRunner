@@ -9,12 +9,12 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   
-  /* Brand Colors: Aqua/Turquoise & Orange */
-  /* Turquoise: ~ #00CED1 (DarkTurquoise) -> 181 100% 41% */
-  /* Orange: ~ #FFA500 (Orange) -> 39 100% 50% */
-  
-  --color-brand-aqua: hsl(175 80% 40%);
-  --color-brand-orange: hsl(30 95% 55%);
+  /* Brand Colors: Aqua #008E97 & Orange #FC4C02 */
+  /* Aqua: Pantone PMS 321 C -> #008E97 -> hsl(183 100% 29%) */
+  /* Orange: Pantone PMS 1655 C -> #FC4C02 -> hsl(18 98% 50%) */
+
+  --color-brand-aqua: hsl(183 100% 29%);
+  --color-brand-orange: hsl(18 98% 50%);
   --color-brand-dark: hsl(210 20% 15%);
   --color-brand-light: hsl(180 30% 97%);
 
@@ -45,9 +45,9 @@
 }
 
 :root {
-  /* Aqua Base: 175 80% 40% */
-  /* Orange Base: 30 95% 55% */
-  
+  /* Aqua Base: #008E97 -> 183 100% 29% */
+  /* Orange Base: #FC4C02 -> 18 98% 50% */
+
   --background: 180 30% 98%;
   --foreground: 210 20% 15%;
 
@@ -57,24 +57,24 @@
   --popover: 0 0% 100%;
   --popover-foreground: 210 20% 15%;
 
-  --primary: 175 80% 40%; /* Turquoise */
+  --primary: 183 100% 29%; /* Aqua #008E97 */
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 30 95% 55%; /* Orange */
+  --secondary: 18 98% 50%; /* Orange #FC4C02 */
   --secondary-foreground: 0 0% 100%;
 
   --muted: 180 20% 90%;
   --muted-foreground: 215 16% 47%;
 
-  --accent: 175 30% 90%;
-  --accent-foreground: 175 80% 30%;
+  --accent: 183 30% 90%;
+  --accent-foreground: 183 100% 25%;
 
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
 
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 175 80% 40%;
+  --ring: 183 100% 29%;
 }
 
 .dark {
@@ -87,10 +87,10 @@
   --popover: 210 20% 15%;
   --popover-foreground: 210 40% 98%;
 
-  --primary: 175 70% 50%;
+  --primary: 183 100% 35%;
   --primary-foreground: 210 20% 10%;
 
-  --secondary: 30 90% 60%;
+  --secondary: 18 98% 55%;
   --secondary-foreground: 210 20% 10%;
 
   --muted: 217.2 32.6% 17.5%;

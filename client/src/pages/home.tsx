@@ -132,43 +132,33 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {[
               {
-                name: "Express Run",
-                price: "$25",
-                duration: "15 min",
-                features: [
-                  "Quick energy release",
-                  "Perfect for busy schedules",
-                  "Climate controlled van",
-                  "Same-day booking available"
-                ],
-                popular: false
-              },
-              {
-                name: "Standard Run",
-                price: "$40",
+                name: "Standard Session",
+                subtitle: "Slatmill Run",
+                price: "$45",
                 duration: "30 min",
                 features: [
-                  "Full workout session",
-                  "Muscle building focus",
+                  "Structured exercise & endurance training",
+                  "Weight management support",
+                  "Climate controlled mobile gym",
                   "Photo updates included",
-                  "Post-run report",
-                  "Most popular choice"
+                  "Supervised & tailored to fitness level"
                 ],
                 popular: true
               },
               {
-                name: "Pro Athlete",
-                price: "$60",
-                duration: "45 min",
+                name: "Pro Session",
+                subtitle: "Fly Chase Course",
+                price: "$35",
+                duration: "30 min",
                 features: [
-                  "Extended endurance training",
-                  "Video session recording",
-                  "Custom training plan",
-                  "Priority scheduling",
-                  "Progress tracking"
+                  "Lure-chase system up to 36 mph",
+                  "Course lengths up to 750 ft",
+                  "Mental stimulation & excitement",
+                  "Perfect for high-energy dogs",
+                  "Outdoor speed training"
                 ],
                 popular: false
               }
@@ -181,6 +171,7 @@ export default function Home() {
                 )}
                 <CardHeader className="text-center pb-8 pt-8">
                   <CardTitle className="text-2xl font-display">{plan.name}</CardTitle>
+                  {plan.subtitle && <p className="text-sm text-muted-foreground mt-1">{plan.subtitle}</p>}
                   <div className="mt-4">
                     <span className="text-5xl font-black text-foreground">{plan.price}</span>
                     <span className="text-muted-foreground ml-2">/ session</span>
@@ -206,8 +197,13 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-4">Package deals available! Save up to 20% with multi-session bundles.</p>
+          <div className="text-center mt-12 space-y-4">
+            <p className="text-muted-foreground">
+              <strong>5-Session Package:</strong> $200 (10% savings) • <strong>Multi-Dog Discount:</strong> 15% off additional dogs
+            </p>
+            <p className="text-muted-foreground">
+              <strong>First-Time Customers:</strong> 15% off your first session!
+            </p>
             <Link href="/portal">
               <Button variant="outline" size="lg" data-testid="button-view-packages">
                 View Package Deals
@@ -291,6 +287,12 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
               {
+                name: "Valerie",
+                pet: "Owner of Dancer (Goldendoodle)",
+                rating: 5,
+                text: "Dancer is already aware of which day of the week GoPAWZ is coming for his slatmill run. He starts to get overly excited, running from one window to the next, jumping, and whining. As soon as the door opens he darts to the van!"
+              },
+              {
                 name: "Sarah M.",
                 pet: "Owner of Max (Golden Retriever)",
                 rating: 5,
@@ -301,12 +303,6 @@ export default function Home() {
                 pet: "Owner of Bella (Pitbull Mix)",
                 rating: 5,
                 text: "I love the QR check-in system and getting photo updates during the session. It's so professional and I always know exactly when they arrive. Bella absolutely loves her workout days!"
-              },
-              {
-                name: "Jennifer K.",
-                pet: "Owner of Duke (German Shepherd)",
-                rating: 5,
-                text: "As a working professional, I don't always have time for long walks. GoPAWZ makes it easy to keep Duke fit and healthy. The mobile gym is climate-controlled which is perfect for hot OC summers!"
               }
             ].map((testimonial, i) => (
               <Card key={i} className="border-none shadow-lg" data-testid={`card-testimonial-${i}`}>
@@ -340,24 +336,32 @@ export default function Home() {
           <div className="max-w-3xl mx-auto space-y-6">
             {[
               {
-                q: "Is the slatmill safe for my dog?",
-                a: "Absolutely! Our non-motorized slatmills allow dogs to run at their own pace, making it much safer than motorized alternatives. We also have trained staff supervising every session."
+                q: "What should my dog bring to a session?",
+                a: "We keep inputs minimal. Your dog should arrive with an attitude for speed and energy to spend. We provide the safe outlet, and fresh water is always provided on board. Treats are optional and used strategically for motivation when appropriate, and only with owner's consent."
+              },
+              {
+                q: "What if my dog doesn't like the slatmill?",
+                a: "GoPAWZ sessions are non-forced and dog-led. Our non-motorized slatmills allow your dog to control pace and engagement. If your dog opts out, we pivot immediately to alternative conditioning like our Fly Chase Course, confidence-building, or enrichment work. Participation is never mandatory—positive experience is the KPI."
+              },
+              {
+                q: "Is my dog too old or young for this?",
+                a: "Sessions are customized by age, size, and physical condition. Puppies (6+ months) focus on short, confidence-based exposure. Senior dogs receive controlled, low-impact movement designed to support mobility and joint health. The pups always dictate the pace—the non-motorized slatmill never forces dogs to run."
               },
               {
                 q: "What vaccinations does my dog need?",
-                a: "We require current Rabies, DHPP, and Bordetella (kennel cough) vaccinations. You can upload and track vaccination records right in your portal!"
+                a: "We require current Rabies, DHPP/DAPP, Bordetella (Kennel Cough), Canine Influenza, and Leptospirosis vaccinations. You can upload and track vaccination records right in your portal!"
               },
               {
-                q: "How far in advance should I book?",
-                a: "We recommend booking 24-48 hours in advance, though same-day Express Run sessions may be available based on our schedule."
+                q: "What happens if it rains?",
+                a: "GoPAWZ door-to-door service operates rain, snow, or shine. The mobile gym is fully climate-controlled and weather-protected. Sessions proceed safely in most conditions. In severe weather that compromises safety, we proactively reschedule."
+              },
+              {
+                q: "Can I stay and watch the session?",
+                a: "During the initial intake assessment, owners are welcome to observe the beginning process. You may watch for the first few minutes as your pet warms up. From a legal and operational standpoint, we cannot allow anyone not insured in the van during sessions. We record sessions so you won't miss a thing!"
               },
               {
                 q: "What areas do you serve?",
-                a: "We serve all of Orange County, CA! Our mobile unit makes it easy to reach you wherever you are."
-              },
-              {
-                q: "Can I watch my dog's session?",
-                a: "Of course! You're welcome to observe, and we'll also send you photos and updates during each session through our portal."
+                a: "We serve Orange County, NY including Middletown, Bloomingburg, Wurtsboro, Otisville, Scotchtown, and Pine Bush. Our mobile unit makes it easy to reach you wherever you are!"
               }
             ].map((faq, i) => (
               <Card key={i} className="border-none shadow-md" data-testid={`card-faq-${i}`}>
@@ -414,10 +418,10 @@ export default function Home() {
               <h4 className="font-bold text-lg">Contact</h4>
               <ul className="space-y-2 text-white/60">
                 <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-secondary" /> (555) 123-4567
+                  <Phone className="w-4 h-4 text-secondary" /> (845) 873-1034
                 </li>
                 <li className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-secondary" /> Orange County, CA
+                  <MapPin className="w-4 h-4 text-secondary" /> Orange County, NY
                 </li>
               </ul>
             </div>

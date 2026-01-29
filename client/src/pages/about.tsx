@@ -18,7 +18,7 @@ export default function About() {
               Powered by <span className="text-secondary">Paws</span>.
             </h1>
             <p className="text-xl text-muted-foreground">
-              GoPAWZ was born from a simple belief: every dog deserves the chance to run free, safe, and happy—no matter where they live.
+              GoPAWZ exists to improve canine health and behavior by delivering door-to-door structured, purposeful fitness that allows dogs to move the way they were biologically designed to—creating balanced dogs and better households.
             </p>
           </div>
           <div className="relative">
@@ -37,10 +37,10 @@ export default function About() {
         <div className="container px-4 md:px-6 max-w-4xl mx-auto text-center space-y-8">
           <h2 className="font-display text-3xl font-bold">Our Story</h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            It started with a high-energy Husky named Luna and a rainy week in Orange County. We realized that even the most dedicated dog owners struggle to provide the intense physical exercise some breeds require, especially when weather, work, or physical limitations get in the way.
+            GoPAWZ was founded on decades of hands-on experience and a simple truth: dogs need structured movement to thrive. Since 1986, our founder has worked directly with dogs in real-world settings—raising, training, and managing high-energy needs across breeds and lifestyles. That lifelong experience shaped our core belief: next to barking, running is one of the most natural behaviors a dog has.
           </p>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            We built GoPAWZ to bridge that gap. By combining state-of-the-art non-motorized slatmills with a climate-controlled mobile environment, we've created a gym that comes to you. It's not just about burning energy; it's about enriching lives.
+            GoPAWZ exists to deliver that outlet in a safe, efficient, and purpose-built way. Through structured canine fitness sessions, we help dogs release excess energy, improve behavior, and support long-term health. The result is tangible—balanced dogs, satisfied owners, and a better everyday life for everyone involved.
           </p>
         </div>
       </section>
@@ -91,9 +91,10 @@ export default function About() {
             <h3 className="font-display text-2xl font-bold">Join the Pack</h3>
             <p className="text-muted-foreground">Follow us on social media for daily doses of happy dogs.</p>
             <div className="flex justify-center gap-4 pt-4">
-               <Button variant="ghost">Instagram</Button>
-               <Button variant="ghost">Facebook</Button>
-               <Button variant="ghost">TikTok</Button>
+               <a href="https://instagram.com/gopawzny" target="_blank" rel="noopener noreferrer"><Button variant="ghost">Instagram</Button></a>
+               <a href="https://facebook.com/gopawz" target="_blank" rel="noopener noreferrer"><Button variant="ghost">Facebook</Button></a>
+               <a href="https://tiktok.com/gopawzny" target="_blank" rel="noopener noreferrer"><Button variant="ghost">TikTok</Button></a>
+               <a href="https://youtube.com/@gopawz" target="_blank" rel="noopener noreferrer"><Button variant="ghost">YouTube</Button></a>
             </div>
          </div>
       </footer>
